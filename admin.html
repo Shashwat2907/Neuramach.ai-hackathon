@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuraVault | Admin Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Immediately check for the Admin Badge. If missing, kick back to main login.
+        if (localStorage.getItem('neuraAdminToken') !== 'valid') {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <style>
+        /* --- GLOBAL RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --bg-dark: #0f172a; 
+            --sidebar-bg: #020617;
+            --admin-accent: #f43f5e; /* Rose Red for Admin Distinction */
+            --text-white: #f8fafc;
+            --text-grey: #94a3b8;
+            --border-color: rgba(255,255,255,0.05);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            display: flex; height: 100vh; overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px; background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 1.5rem; flex-shrink: 0;
+        }
+        .logo { font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 3rem; display: flex; align-items: center; gap: 8px; }
+        .logo span { color: var(--admin-accent); }
+        
+        .nav-label { font-size: 0.75rem; color: var(--text-grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; font-weight: 600; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem;
+            color: var(--text-grey); border-radius: 10px; cursor: pointer; transition: 0.2s; margin-bottom: 0.5rem;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(244, 63, 94, 0.1); color: white; }
+        .nav-item.active { border-left: 3px solid var(--admin-accent); }
+
+        /* --- MAIN CONTENT --- */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header {
+            height: 80px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 2rem;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px);
+        }
+        .admin-badge { background: var(--admin-accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; }
+
+        .content-area { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
+
+        /* --- STATS ROW --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .stat-card { background: #1e293b; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); }
+        .stat-val { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { color: var(--text-grey); font-size: 0.9rem; }
+
+        /* --- UPLOAD SECTION --- */
+        .upload-container {
+            background: #1e293b; border-radius: 16px; border: 1px solid var(--border-color);
+            padding: 2rem; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+        }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; color: var(--text-grey); font-size: 0.9rem; }
+        .form-input, .form-select {
+            width: 100%; background: #0f172a; border: 1px solid var(--border-color);
+            padding: 0.8rem; border-radius: 8px; color: white; outline: none;
+        }
+        .form-input:focus { border-color: var(--admin-accent); }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color); border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; color: var(--text-grey); transition: 0.3s;
+            cursor: pointer; background: rgba(0,0,0,0.2);
+        }
+        .drop-zone:hover { border-color: var(--admin-accent); background: rgba(244, 63, 94, 0.05); }
+
+        .btn-upload {
+            background: var(--admin-accent); color: white; border: none; padding: 1rem 2rem;
+            border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 1rem;
+            transition: 0.2s;
+        }
+        .btn-upload:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(244, 63, 94, 0.4); }
+
+        /* --- CONTENT TABLE --- */
+        .table-container { background: #1e293b; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem 1.5rem; color: var(--text-grey); font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
+        td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .tier-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .tier-free { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .tier-plus { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .tier-elite { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2); }
+
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal { background: #1e293b; padding: 2rem; border-radius: 16px; text-align: center; border: 1px solid var(--admin-accent); box-shadow: 0 0 30px rgba(244, 63, 94, 0.2); }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">🔒 Neura<span>Vault</span> <span style="font-size:0.6rem; background:var(--admin-accent); color:white; padding:2px 6px; border-radius:4px; margin-left:5px;">ADMIN</span></div>
+        
+        <div class="nav-label">Management</div>
+        <div class="nav-item active"><span>📊</span> Dashboard</div>
+        <div class="nav-item"><span>📤</span> Upload Content</div>
+        <div class="nav-item"><span>👥</span> Students</div>
+        
+        <div class="nav-label" style="margin-top: 2rem;">System</div>
+        <div class="nav-item" onclick="logoutAdmin()" style="color:#ef4444; margin-top: auto;"><span>🚪</span> Logout</div>
+    </div>
+
+    <div class="main-wrapper">
+        <header>
+            <h3>Content Management System</h3>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="admin-badge">SUPER ADMIN</span>
+                <div style="width: 40px; height: 40px; background: #334155; border-radius: 50%;"></div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-val">1,240</div><div class="stat-label">Total Students</div></div>
+                <div class="stat-card"><div class="stat-val">$14.2k</div><div class="stat-label">Monthly Revenue</div></div>
+                <div class="stat-card"><div class="stat-val">85</div><div class="stat-label">Active Courses</div></div>
+                <div class="stat-card"><div class="stat-val">420GB</div><div class="stat-label">Storage Used</div></div>
+            </div>
+
+            <div class="upload-container">
+                <div class="form-side">
+                    <h2 style="margin-bottom: 1.5rem;">Add New Content</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Course / Batch</label>
+                            <select class="form-select" id="courseSelect">
+                                <option>Physics - Batch A2</option>
+                                <option>Chemistry - Organic</option>
+                                <option>Math - Calculus II</option>
+                                <option>Biology - Genetics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Content Type</label>
+                            <select class="form-select" id="typeSelect">
+                                <option value="Video">Video Lesson</option>
+                                <option value="PDF">PDF Resource</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lesson Title</label>
+                        <input type="text" class="form-input" id="lessonTitle" placeholder="e.g. Introduction to Quantum States">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Access Tier</label>
+                        <select class="form-select" id="tierSelect" style="border-color: var(--admin-accent);">
+                            <option value="Free">Free (Basic)</option>
+                            <option value="Plus">Plus (Standard)</option>
+                            <option value="Elite">Elite (Premium Only)</option>
+                        </select>
+                        <small style="color: var(--text-grey); margin-top: 5px; display: block;">*Elite content is encrypted with highest security.</small>
+                    </div>
+                </div>
+
+                <div class="drop-side">
+                    <div class="drop-zone" style="height: 100%;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">☁️</div>
+                        <p>Drag & Drop Video/PDF here</p>
+                        <small style="color: var(--text-grey);">or click to browse</small>
+                    </div>
+                </div>
+                
+                <button class="btn-upload" style="grid-column: span 2;" onclick="handleUpload()">Upload to Secure Vault</button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Recent Vault Uploads</h3>
+                    <input type="text" placeholder="Search..." style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: white;">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Content Title</th>
+                            <th>Type</th>
+                            <th>Course</th>
+                            <th>Access Tier</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="uploadTableBody">
+                        <tr>
+                            <td>Quantum Mechanics: Wave Functions</td>
+                            <td>🎥 Video</td>
+                            <td>Physics - Batch A2</td>
+                            <td><span class="tier-badge tier-elite">Elite</span></td>
+                            <td>Feb 11, 2026</td>
+                            <td>🗑️ ✏️</td>
+                        </tr>
+                        <tr>
+                            <td>Organic Chemistry Basics</td>
+                            <td>📄 PDF</td>
+                            <td>Chemistry - Organic</td>
+                            <td><span class="tier-badge tier-free">Free</span></td>
+                            <td>Feb 10, 2026</td>
+                            <td>🗑️ ✏️</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="successModal" style="display: none;">
+        <div class="modal">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+            <h2>Secure Upload Complete</h2>
+            <p style="color: var(--text-grey); margin-bottom: 1.5rem;">Content has been encrypted and added to the selected tier.</p>
+            <button class="btn-upload" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // LOGOUT LOGIC (Destroys the Badge)
+        function logoutAdmin() {
+            localStorage.removeItem('neuraAdminToken'); 
+            window.location.href = 'login.html'; 
+        }
+
+        // UPLOAD LOGIC (Visual Simulation)
+        function handleUpload() {
+            const title = document.getElementById('lessonTitle').value;
+            const course = document.getElementById('courseSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const tier = document.getElementById('tierSelect').value;
+
+            if (!title) { alert("Please enter a lesson title."); return; }
+
+            const btn = document.querySelector('.btn-upload');
+            const originalText = btn.innerText;
+            btn.innerText = "Encrypting & Uploading...";
+            btn.style.opacity = "0.7";
+
+            setTimeout(() => {
+                const tbody = document.getElementById('uploadTableBody');
+                const row = document.createElement('tr');
+                
+                let tierClass = 'tier-free';
+                if(tier === 'Plus') tierClass = 'tier-plus';
+                if(tier === 'Elite') tierClass = 'tier-elite';
+
+                let icon = type === 'Video' ? '🎥 Video' : '📄 PDF';
+
+                row.innerHTML = `
+                    <td>${title}</td>
+                    <td>${icon}</td>
+                    <td>${course}</td>
+                    <td><span class="tier-badge ${tierClass}">${tier}</span></td>
+                    <td>Just Now</td>
+                    <td>🗑️ ✏️</td>
+                `;
+                
+                tbody.insertBefore(row, tbody.firstChild);
+                document.getElementById('successModal').style.display = 'flex';
+                
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+                document.getElementById('lessonTitle').value = ''; 
+
+            }, 1500);
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
