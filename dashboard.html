@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuraVault | Student Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL RESET & VARS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --bg-dark: #020617;
+            --sidebar-bg: rgba(15, 23, 42, 0.95);
+            --primary-blue: #3b82f6;
+            --accent-purple: #7c3aed;
+            --text-white: #f8fafc;
+            --text-grey: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- 1. SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--primary-blue);
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            color: var(--text-grey);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.8rem 1rem;
+            color: var(--text-grey);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .upgrade-card {
+            margin-top: auto;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.2rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .upgrade-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upgrade-btn:hover {
+            background: #2563eb;
+        }
+
+        /* --- 2. MAIN AREA --- */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        header {
+            height: 80px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            width: 400px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .streak {
+            color: #f59e0b;
+            font-weight: 600;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            background: #334155;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* View Management */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- DASHBOARD COMPONENTS --- */
+        /* WELCOME SECTION (DYNAMIC) */
+        .welcome-section {
+            margin-bottom: 2rem;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-name {
+            background: linear-gradient(to right, #3b82f6, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .welcome-sub {
+            color: var(--text-grey);
+            font-size: 1rem;
+        }
+
+        .hero-card {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-content h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-content p {
+            color: var(--text-grey);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            width: 65%;
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 3px;
+        }
+
+        .ai-summary-btn {
+            background: rgba(124, 58, 237, 0.1);
+            color: #a78bfa;
+            border: 1px solid #7c3aed;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .ai-summary-btn:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.4);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+            color: var(--text-grey);
+            font-size: 0.9rem;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
+        }
+
+        .thumbnail {
+            height: 160px;
+            background: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+
+        .card-body {
+            padding: 1.2rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            gap: 5px;
+        }
+
+        /* --- COURSE DETAIL VIEW STYLES --- */
+        .course-header {
+            background: linear-gradient(to bottom right, #1e293b, #0f172a);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-grey);
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .instructor-avatar {
+            width: 30px;
+            height: 30px;
+            background: #475569;
+            border-radius: 50%;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-link {
+            padding-bottom: 10px;
+            cursor: pointer;
+            color: var(--text-grey);
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab-link.active {
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .lesson-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .lesson-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .lesson-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .lesson-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .play-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        /* RESOURCES LIST */
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            display: none;
+        }
+
+        .resource-item {
+            background: rgba(30, 41, 59, 0.4);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .resource-item:hover {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .resource-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .secure-badge {
+            font-size: 0.7rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ANNOUNCEMENTS LIST */
+        .announcement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            display: none;
+        }
+
+        .announcement-card {
+            background: rgba(30, 41, 59, 0.4);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .announcement-date {
+            font-size: 0.8rem;
+            color: var(--text-grey);
+            margin-bottom: 5px;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .announcement-body {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        /* --- NOTES --- */
+        .note-card {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .note-card:hover {
+            border-color: #7c3aed;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: var(--text-grey);
+            margin-bottom: 0.5rem;
+        }
+
+        .note-preview {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .note-tag {
+            background: rgba(124, 58, 237, 0.1);
+            color: #a78bfa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* --- SETTINGS --- */
+        .settings-container {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-grey);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* --- MODALS & CHAT --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1e293b;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            color: var(--text-grey);
+            z-index: 10;
+        }
+
+        /* SECURE VIDEO PLAYER STYLES */
+        .video-modal-content {
+            background: #020617;
+            /* Darker bg */
+            width: 95vw;
+            max-width: 1400px;
+            /* Wider for sidebar */
+            height: 85vh;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+            display: flex;
+            /* Layout for video + sidebar */
+        }
+
+        .video-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .video-container {
+            flex: 1;
+            background: #000;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-controls-bar {
+            padding: 1rem;
+            background: #0f172a;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-sidebar {
+            width: 350px;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .player-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .player-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-grey);
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .player-tab.active {
+            color: white;
+            border-bottom-color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .dynamic-watermark {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 1.5rem;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatWatermark 10s infinite linear alternate;
+            z-index: 50;
+            user-select: none;
+        }
+
+        @keyframes floatWatermark {
+            0% {
+                top: 10%;
+                left: 10%;
+            }
+
+            100% {
+                top: 80%;
+                left: 70%;
+            }
+        }
+
+        /* SECURE PDF VIEWER STYLES */
+        .pdf-modal-content {
+            background: #e2e8f0;
+            width: 800px;
+            height: 85vh;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-toolbar {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
+        .pdf-body {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            font-family: 'Times New Roman', serif;
+            position: relative;
+        }
+
+        .pdf-watermark {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: rgba(0, 0, 0, 0.05);
+            transform: rotate(-45deg);
+            pointer-events: none;
+            font-weight: bold;
+            z-index: 0;
+        }
+
+        .pdf-text {
+            position: relative;
+            z-index: 1;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: #1e293b;
+            border-radius: 20px;
+            z-index: 99;
+            display: none;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-window.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: var(--primary-blue);
+            padding: 1rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .msg {
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            max-width: 80%;
+        }
+
+        .msg.bot {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .msg.user {
+            background: var(--primary-blue);
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+
+    <div class="sidebar">
+        <div class="logo">🔒 Neura<span>Vault</span></div>
+        <div class="nav-label">Menu</div>
+        <a class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')"><span>🏠</span> Dashboard</a>
+        <a class="nav-item" id="nav-catalog" onclick="switchView('catalog')"><span>🔍</span> Browse Catalog</a>
+        <a class="nav-item" id="nav-batches" onclick="switchView('batches')"><span>📚</span> My Batches</a>
+        <a class="nav-item" id="nav-notes" onclick="switchView('notes')"><span>📝</span> Smart Notes</a>
+        <a class="nav-item" id="nav-performance" onclick="switchView('performance')"><span>📊</span> Performance</a>
+        <div class="nav-label" style="margin-top: 2rem;">Support</div>
+        <a class="nav-item" onclick="toggleChat()"><span>🤖</span> NeuraBot</a>
+        <a class="nav-item" id="nav-settings" onclick="switchView('settings')"><span>⚙️</span> Settings</a>
+        <div class="upgrade-card">
+            <h4 style="margin-bottom: 5px;">Go Elite</h4>
+            <button class="upgrade-btn" onclick="window.location.href='pricing.html'">Upgrade Now</button>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search courses..."></div>
+            <div class="header-actions">
+                <div class="streak">🔥 12</div>
+                <div class="profile-pic">JD</div>
+            </div>
+        </header>
+
+        <div class="content-area">
+
+            <section id="view-dashboard" class="view-section active">
+
+                <div class="welcome-section">
+                    <h1 class="welcome-title" id="welcome-title">Welcome Back, <span class="welcome-name"
+                            id="user-name">Student</span> 👋</h1>
+                    <p class="welcome-sub" id="welcome-sub">Ready to continue your learning journey?</p>
+                </div>
+
+                <div class="hero-card">
+                    <div class="hero-content">
+                        <div style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">CONTINUE LEARNING</div>
+                        <h2>Quantum Mechanics: Wave Functions</h2>
+                        <p>Unit 3 • Lesson 4 • Stopped at 14:20</p>
+                        <button class="ai-summary-btn" onclick="openModal('summaryModal')">✨ View AI Summary</button>
+                    </div>
+                    <div style="width: 300px;">
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                            <span>65% Complete</span>
+                            <span>25m left</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-val">24.5h</div>
+                        <div class="stat-label">Hours Studied</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val">4</div>
+                        <div class="stat-label">Enrolled Courses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" style="color: #a78bfa;">142</div>
+                        <div class="stat-label">AI Doubts Solved</div>
+                    </div>
+                </div>
+
+                <h3>Recent Batches</h3>
+                <div class="course-grid" style="margin-top: 1rem;" id="dashboard-course-list">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+
+            <section id="view-catalog" class="view-section">
+                <h2 style="margin-bottom: 2rem;">Course Catalog</h2>
+                <div class="search-bar" style="width: 100%; margin-bottom: 2rem;">
+                    <span>🔍</span><input type="text" id="catalogSearch"
+                        placeholder="Search for physics, math, biology..." onkeyup="renderCatalog()">
+                </div>
+                <div class="course-grid" id="catalog-course-list">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+
+
+
+            <section id="view-batches" class="view-section">
+                <h2 style="margin-bottom: 2rem;">My Batches Library</h2>
+                <div class="course-grid">
+                    <div class="course-card" onclick="openCourseDetail()">
+                        <div class="thumbnail">⚛️</div>
+                        <div class="card-body">
+                            <div class="tag">Physics</div>
+                            <div class="card-title">Advanced Physics</div>
+                            <div class="card-meta"><span>12 Lessons</span><span>4.8 ★</span></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="thumbnail">📐</div>
+                        <div class="card-body">
+                            <div class="tag">Math</div>
+                            <div class="card-title">Calculus II</div>
+                            <div class="card-meta"><span>24 Lessons</span><span>4.7 ★</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-notes" class="view-section">
+                <h2 style="margin-bottom: 2rem;">Smart Notes</h2>
+                <div class="course-grid">
+                    <div class="note-card" onclick="openModal('summaryModal')">
+                        <div class="note-date">Feb 10, 2026</div>
+                        <h3 style="margin-bottom:0.5rem;">Quantum Mechanics: Wave Functions</h3>
+                        <p class="note-preview">Key insight: The wave function collapses upon observation.</p>
+                        <span class="note-tag">Physics</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-performance" class="view-section">
+                <h2 style="margin-bottom: 2rem;">My Performance</h2>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-val">92%</div>
+                        <div class="stat-label">Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val">A</div>
+                        <div class="stat-label">Avg Grade</div>
+                    </div>
+                </div>
+                <div class="hero-card" style="align-items: flex-start; flex-direction: column;">
+                    <h3>Weekly Progress</h3>
+                    <div class="progress-bar" style="width: 100%; margin-top: 1rem;">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--text-grey);">You are ahead of 85% of your peers in the
+                        Physics batch.</p>
+                </div>
+            </section>
+
+            <section id="view-course-detail" class="view-section">
+                <button onclick="switchView('home')"
+                    style="background:none; border:none; color:var(--text-grey); cursor:pointer; margin-bottom:1rem;">←
+                    Back to Dashboard</button>
+                <div class="hero-card" style="margin-bottom: 2rem;">
+                    <div style="flex:1;">
+                        <span class="tag">Physics • Batch 2026</span>
+                        <h1 style="font-size: 2rem; margin: 0.5rem 0;">Advanced Quantum Mechanics</h1>
+                        <div class="instructor-info">
+                            <div class="avatar">👨‍🏫</div>
+                            <span>Dr. Richard Feynman • 12 Lessons</span>
+                        </div>
+                        <p style="margin-top: 1rem; color: var(--text-grey); max-width: 600px;">
+                            Master the fundamental principles of quantum mechanics...
+                        </p>
+                    </div>
+                    <div style="font-size: 5rem; opacity: 0.2;">⚛️</div>
+                </div>
+
+                <div class="tabs-nav">
+                    <div class="tab-link active" id="tab-curriculum" onclick="switchTab('curriculum')">Curriculum</div>
+                    <div class="tab-link" id="tab-resources" onclick="switchTab('resources')">Resources</div>
+                    <div class="tab-link" id="tab-announcements" onclick="switchTab('announcements')">📢 Updates</div>
+                </div>
+
+                <!-- TAB 1: Curriculum -->
+                <div id="content-curriculum" class="tab-content active"
+                    style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Lessons rendered here -->
+                </div>
+
+                <!-- TAB 2: Resources -->
+                <div id="content-resources" class="tab-content" style="display:none; flex-direction:column; gap:10px;">
+                    <p style="color:var(--text-grey);">No additional resources available for this course.</p>
+                </div>
+
+                <!-- TAB 3: Announcements -->
+                <div id="content-announcements" class="tab-content"
+                    style="display:none; flex-direction:column; gap:10px;">
+                    <h3 style="color:white; font-size:1rem; margin-bottom:10px;">Instructor Announcements</h3>
+                    <div id="course-notices">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-settings" class="view-section">
+                <h2 style="margin-bottom: 2rem;">Settings</h2>
+                <div class="settings-container">
+                    <div class="form-group">
+                        <label class="nav-label">Full Name</label>
+                        <input type="text" id="settingsName" class="form-input">
+                    </div>
+                    <button class="upgrade-btn" onclick="State.logout()"
+                        style="background: #ef4444; margin-top: 2rem;">Log Out</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <div class="fab" onclick="toggleChat()">🤖</div>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header"><span>NeuraBot</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot">Hello! How can I help you today?</div>
+        </div>
+        <div class="chat-input"><input type="text" id="chatInput" placeholder="Type a doubt..."
+                onkeypress="handleEnter(event)"><button onclick="sendMessage()"
+                style="background:var(--primary-blue); border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">→</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="videoModal">
+        <div class="video-modal-content">
+            <span class="close-modal" onclick="closeModal('videoModal')">✕</span>
+            <div class="video-container">
+                <div
+                    style="position: absolute; inset:0; background: #111; display: flex; align-items: center; justify-content: center; color: #555;">
+                    [ SECURE VIDEO STREAM ACTIVE ]</div>
+                <div class="dynamic-watermark">student@neuramach.ai</div>
+            </div>
+            <div style="padding: 1.5rem;">
+                <h3>02. Wave Functions & Probability</h3>
+                <p style="color: var(--text-grey); font-size: 0.9rem;">Protected Content. Screen recording is disabled.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pdfModal">
+        <div class="pdf-modal-content">
+            <div class="pdf-toolbar">
+                <span id="pdfTitle">Document Viewer</span>
+                <span
+                    style="color: #ef4444; font-size: 0.8rem; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px;">PRINT/DOWNLOAD
+                    DISABLED</span>
+                <span style="cursor:pointer;" onclick="closeModal('pdfModal')">✕ Close</span>
+            </div>
+            <div class="pdf-body">
+                <div class="pdf-watermark">student@neuramach.ai</div>
+                <div class="pdf-text">
+                    <h1 style="text-align: center;">Quantum Mechanics: Lecture 02</h1>
+                    <p style="text-align: center; color: #555; margin-bottom: 2rem;">Confidential Learning Material</p>
+                    <p><strong>1. The Wave Function (Ψ)</strong><br>The state of a quantum mechanical system is
+                        completely specified by a function Ψ(x,t) that depends on the coordinates of the particle and
+                        time.</p>
+                    <br>
+                    <p style="color: #888;">[End of Preview - Upgrade for full notes]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upgradeModal">
+        <div class="modal" style="text-align: center;">
+            <span class="close-modal" onclick="closeModal('upgradeModal')">✕</span>
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+            <h2 style="margin-bottom: 0.5rem;">Unlock Elite Content</h2>
+            <button class="upgrade-btn" onclick="window.location.href='pricing.html'">View Plans</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="summaryModal">
+        <div class="modal">
+            <span class="close-modal" onclick="closeModal('summaryModal')">✕</span>
+            <h3 style="color: #a78bfa; margin-bottom: 1rem;">✨ AI Summary</h3>
+            <p style="color: var(--text-grey);">The wave function describes the quantum state...</p>
+        </div>
+    </div>
+
+    <!-- MOCK DATA SCRIPTS -->
+    <script src="js/data.js"></script>
+    <script src="js/state.js"></script>
+
+    <script>
+        // --- INITIALIZATION ---
+        const user = State.getCurrentUser();
+
+        if (!user) {
+            window.location.href = 'login.html';
+        } else {
+            // Update UI with User Info
+            document.getElementById('user-name').innerText = user.name;
+            document.getElementById('settingsName').value = user.name;
+
+            // Check for new user (just for the welcome message)
+            if (localStorage.getItem('neuraUserType') === 'new') {
+                document.getElementById('welcome-title').innerHTML = `Welcome, <span class="welcome-name">${user.name}</span> 🚀`;
+                document.getElementById('welcome-sub').innerText = "Your journey to excellence begins today.";
+                localStorage.removeItem('neuraUserType'); // Clear flag
+            }
+
+            // Render Views
+            renderMyBatches();
+            renderCatalog();
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function createCourseCard(course, isLocked = false) {
+            const lockedOverlay = isLocked ? `<div class="locked-overlay">🔒 LOCKED</div>` : '';
+            return `
+            <div class="course-card" onclick="${isLocked ? "openModal('upgradeModal')" : `openCourseDetail('${course.id}')`}">
+                <div class="thumbnail">${course.thumbnail} ${lockedOverlay}</div>
+                <div class="card-body">
+                    <div class="tag">${course.tags[0]}</div>
+                    <div class="card-title">${course.title}</div>
+                    <div class="card-meta"><span>${course.lessonsCount} Lessons</span><span>${course.rating} ★</span></div>
+                </div>
+            </div>`;
+        }
+
+        function renderMyBatches() {
+            const enrolled = State.getEnrolledCourses();
+            const container = document.getElementById('dashboard-course-list');
+            const batchesContainer = document.querySelector('#view-batches .course-grid');
+
+            if (enrolled.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-grey)">You haven't enrolled in any courses yet. Check the Catalog!</p>`;
+                batchesContainer.innerHTML = container.innerHTML;
+                return;
+            }
+
+            const html = enrolled.map(c => createCourseCard(c)).join('');
+            container.innerHTML = html;
+            batchesContainer.innerHTML = html;
+        }
+
+        function renderCatalog() {
+            const query = document.getElementById('catalogSearch').value.toLowerCase();
+            const allCourses = State.getCourses();
+            const container = document.getElementById('catalog-course-list');
+
+            const filtered = allCourses.filter(c =>
+                c.title.toLowerCase().includes(query) ||
+                c.tags.some(t => t.toLowerCase().includes(query))
+            );
+
+            const user = State.getCurrentUser();
+            const html = filtered.map(c => {
+                const isEnrolled = user.enrolledCourses.includes(c.id);
+                // If enrolled, show normal card. If not, show "Enroll" option or handle click differently? 
+                // For now, let's make non-enrolled click -> Enroll Modal
+                if (isEnrolled) return createCourseCard(c);
+
+                return `
+                <div class="course-card">
+                    <div class="thumbnail">${c.thumbnail}</div>
+                    <div class="card-body">
+                        <div class="tag">${c.tags[0]}</div>
+                        <div class="card-title">${c.title}</div>
+                        <div class="card-meta"><span>${c.instructor}</span></div>
+                        <button class="upgrade-btn" style="margin-top:10px; padding: 0.5rem;" onclick="enrollInCourse('${c.id}')">Enroll Now</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // --- ACTIONS ---
+        function enrollInCourse(courseId) {
+            if (State.enroll(courseId)) {
+                alert("Enrolled successfully!");
+                renderMyBatches();
+                renderCatalog(); // Re-render to update button state
+                // flag to stay on current view instead of switching
+            }
+        }
+
+        function openCourseDetail(courseId) {
+            window.currentCourseId = courseId; // GLOBAL for tab switching
+            const course = State.getCourse(courseId);
+            if (!course) return;
+
+            // Update UI with Course Details
+            const view = document.getElementById('view-course-detail');
+            view.querySelector('h1').innerText = course.title;
+            view.querySelector('.tag').innerText = `${course.tags[0]} • Batch 2026`;
+            view.querySelector('.instructor-info span').innerText = `${course.instructor} • ${course.lessonsCount} Lessons`;
+            view.querySelector('p').innerText = course.description;
+
+            // Render Lessons
+            const lessonList = document.getElementById('content-curriculum');
+            lessonList.innerHTML = course.lessons.map(l => `
+                <div class="lesson-item" style="${l.locked ? 'opacity:0.6; cursor:not-allowed' : ''}" onclick="${l.locked ? '' : `playVideo('${l.videoUrl || ''}', '${l.title}', '${l.id}')`}">
+                    <div class="lesson-meta">
+                        <div class="play-icon">${l.locked ? '🔒' : '▶'}</div>
+                        <div><div style="font-weight: 600;">${l.title}</div><div style="font-size: 0.8rem; color: var(--text-grey);">${l.duration} • ${l.locked ? 'Locked' : 'Available'}</div></div>
+                    </div>
+                    ${!l.locked ? '<span style="font-size: 0.8rem; color: var(--primary-blue);">Watch</span>' : ''}
+                </div>
+            `).join('');
+
+            // RENDER ANNOUNCEMENTS (Notice Board)
+            const noticeContainer = document.getElementById('course-notices');
+            if (noticeContainer) {
+                if (course.announcements && course.announcements.length > 0) {
+                    noticeContainer.innerHTML = course.announcements.map(a => `
+                        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--accent-color);">
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
+                            <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    noticeContainer.innerHTML = `<p style="color: #64748b; font-style: italic;">No recent announcements.</p>`;
+                }
+            }
+
+            // Switch View
+            switchView('course-detail'); // Use the ID directly
+        }
+
+        // --- NAVIGATION & UI ---
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Fix for inconsistent naming in previous steps if any
+            const target = document.getElementById('view-' + viewName);
+            if (target) target.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const nav = document.getElementById('nav-' + viewName);
+            if (nav) nav.classList.add('active');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            document.getElementById('content-curriculum').style.display = 'none';
+            document.getElementById('content-resources').style.display = 'none';
+            document.getElementById('content-announcements').style.display = 'none';
+
+            const activeContent = document.getElementById('content-' + tabName);
+            activeContent.style.display = 'flex';
+
+            // Re-fetch announcements to ensure fresh data
+            if (tabName === 'announcements') {
+                // We need the course ID. It's not stored globally easily, but we can get it from the open view?
+                // Let's store currentCourseId globally when opening course
+                if (window.currentCourseId) {
+                    const course = State.getCourse(window.currentCourseId);
+                    const noticeContainer = document.getElementById('course-notices');
+                    if (course && noticeContainer) {
+                        if (course.announcements && course.announcements.length > 0) {
+                            noticeContainer.innerHTML = course.announcements.map(a => `
+                                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--accent-color);">
+                                    <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
+                                    <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
+                                </div>
+                            `).join('');
+                        } else {
+                            noticeContainer.innerHTML = `<p style="color: #64748b; font-style: italic;">No recent announcements.</p>`;
+                        }
+                    }
+                }
+            }
+        }
+
+        // MODALS & PLAYER LOGIC
+        let currentLessonId = null;
+
+        function playVideo(url, title, lessonId) {
+            currentLessonId = lessonId || 'l1';
+            const modal = document.getElementById('videoModal');
+
+            // Set Title
+            document.getElementById('playerLessonTitle').innerText = title;
+
+            const container = modal.querySelector('.video-container');
+            container.innerHTML = ''; // Clear previous content
+
+            if (url) {
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    // YouTube Embed
+                    // Ensure it's an embed URL
+                    let embedUrl = url;
+                    if (url.includes('watch?v=')) {
+                        embedUrl = url.replace('watch?v=', 'embed/');
+                    }
+                    container.innerHTML = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else if (url.toLowerCase().endsWith('.pdf')) {
+                    // PDF Viewer
+                    container.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>`;
+                } else if (url.endsWith('.mp4')) {
+                    // Direct MP4
+                    container.innerHTML = `<video controls autoplay style="width:100%; height:100%; outline:none;">
+                        <source src="${url}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>`;
+                } else {
+                    // Generic Iframe fallback
+                    container.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+                }
+            } else {
+                container.innerHTML = `<div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#555; background: #0f172a;">
+                    <div style="font-size:3rem; margin-bottom:1rem; opacity: 0.5;">☁️</div>
+                    <div style="font-size: 1.2rem; font-weight: 500; color: white;">Content Pending Upload</div>
+                    <div style="font-size:0.9rem; margin-top:0.5rem; color: var(--text-grey);">The instructor has not uploaded this lesson yet.</div>
+                </div>`;
+            }
+
+            modal.classList.add('active');
+            renderSavedNotes();
+        }
+
+        function switchPlayerTab(tab) {
+            // Update Tab UI
+            document.querySelectorAll('.player-tab').forEach(el => el.classList.remove('active'));
+            const activeTab = document.getElementById('ptab-' + tab);
+            if (activeTab) activeTab.classList.add('active');
+
+            // Show/Hide Content
+            document.getElementById('player-notes').style.display = tab === 'notes' ? 'flex' : 'none';
+            document.getElementById('player-resources').style.display = tab === 'resources' ? 'block' : 'none';
+        }
+
+        // AUTO-SAVE NOTES LOGIC
+        const noteInput = document.getElementById('noteInput');
+        let noteTimeout;
+        if (noteInput) {
+            noteInput.addEventListener('input', () => {
+                clearTimeout(noteTimeout);
+                noteTimeout = setTimeout(() => {
+                    const text = noteInput.value.trim();
+                    if (text) {
+                        State.saveNote(currentLessonId, text);
+                        renderSavedNotes();
+                        noteInput.value = ''; // Clear after save for prototype flow
+                    }
+                }, 1000);
+            });
+        }
+
+        function renderSavedNotes() {
+            if (!currentLessonId) return;
+            const notes = State.getNotes(currentLessonId);
+            const list = document.getElementById('savedNotesList');
+            if (!list) return;
+
+            if (notes.length === 0) {
+                list.innerHTML = `<div style="color:var(--text-grey); text-align:center; margin-top:2rem; font-size:0.9rem;">
+                    No notes yet.<br>Start typing above to auto-save.
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = notes.slice().reverse().map(n => `
+                <div style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:8px; margin-bottom:0.5rem; font-size:0.9rem;">
+                    <div style="color:var(--text-grey); font-size:0.75rem; margin-bottom:5px; display:flex; justify-content:space-between;">
+                        <span>${new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span style="color:var(--primary-blue)">Note</span>
+                    </div>
+                    ${n.text}
+                </div>
+            `).join('');
+        }
+
+        function markLessonComplete() {
+            if (currentLessonId) {
+                alert("Lesson marked as complete! Progress updated.");
+                // In a real app, call State.updateProgress here
+                closeModal('videoModal');
+            }
+        }
+
+        function openPDF(title) {
+            document.getElementById('pdfTitle').innerText = title;
+            document.getElementById('pdfModal').classList.add('active');
+        }
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('active');
+            // Stop video if closing video modal
+            if (id === 'videoModal') {
+                modal.querySelector('.video-container').innerHTML = '';
+            }
+        }
+        function toggleChat() { document.getElementById('chatWindow').classList.toggle('active'); }
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const body = document.getElementById('chatBody');
+            const text = input.value.trim();
+            if (text) {
+                const userMsg = document.createElement('div');
+                userMsg.className = 'msg user'; userMsg.innerText = text;
+                body.appendChild(userMsg);
+                input.value = ''; body.scrollTop = body.scrollHeight;
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'msg bot'; botMsg.innerText = "I'm a prototype bot! I can't answer that yet.";
+                    body.appendChild(botMsg); body.scrollTop = body.scrollHeight;
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+
+</html>

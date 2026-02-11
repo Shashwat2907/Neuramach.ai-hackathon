@@ -1,0 +1,2 @@
+admin@neuramach.ai / admin
+student@email.com / password
