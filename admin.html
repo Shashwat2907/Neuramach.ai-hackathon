@@ -546,6 +546,14 @@
             border: 1px solid var(--admin-accent);
             box-shadow: 0 0 30px rgba(244, 63, 94, 0.2);
         }
+        .batch-tab { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-grey); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .batch-tab:hover, .batch-tab.active { background: rgba(244, 63, 94, 0.2); color: white; border-color: var(--admin-accent); }
+        .admin-todo-list { min-height: 0; max-height: 200px; overflow-y: auto; }
+        .admin-calendar-box { min-height: 200px; }
+        .batch-dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .batch-dropdown-list { max-height: 280px; overflow-y: auto; }
+        .batch-dropdown-list label { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border-radius: 6px; font-size: 0.9rem; }
+        .batch-dropdown-list label:hover { background: rgba(255,255,255,0.05); }
     </style>
 </head>
 
@@ -610,54 +618,26 @@
 
                 <div class="dashboard-grid">
                     <div class="dash-panel">
-                        <div class="panel-title">
-                            Pending Tasks <span>📝</span>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
-                            <input type="text" id="newTaskTitle" placeholder="New Task..."
-                                style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem;">
-                            <div style="display: flex; gap: 8px;">
-                                <input type="date" id="newTaskDate"
-                                    style="flex: 1; background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem;">
-                                <button onclick="addNewTask()"
-                                    style="background: var(--admin-accent); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">Add</button>
-                            </div>
-                        </div>
-                        <div id="todo-list" style="overflow-y:auto; max-height: 300px;">
-                            <!-- Dynamic Tasks -->
-                        </div>
+                        <div class="panel-title">To-Do <span>📝</span></div>
+                        <div id="admin-todo-list" class="admin-todo-list"></div>
+                        <input type="text" id="newTaskTitle" placeholder="Add a task..."
+                            style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem; margin-top: 8px;">
+                        <input type="date" id="newTaskDate"
+                            style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem; margin-top: 8px;">
+                        <button onclick="addNewTask()" style="background: var(--admin-accent); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; width: 100%;">Add</button>
                     </div>
 
                     <div class="dash-panel">
-                        <div class="panel-title">Deadlines <span>📅</span></div>
-                        <div class="calendar-grid" id="admin-calendar">
-                            <!-- Dynamic Calendar -->
-                        </div>
+                        <div class="panel-title">Calendar <span>📅</span></div>
+                        <div id="admin-calendar" class="admin-calendar-box"></div>
                         <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-grey);">
-                            <div style="margin-bottom:5px;"><span style="color:var(--admin-accent)">●</span> Today: Feb
-                                11</div>
-                            <div><span style="color:var(--admin-accent)">○</span> Tasks: Synchronized</div>
+                            <span style="color:var(--admin-accent)">●</span> Tasks synced with calendar
                         </div>
                     </div>
 
                     <div class="dash-panel">
                         <div class="panel-title">Recent Updates <span>⚡</span></div>
-                        <div class="log-item">
-                            <div class="log-time">10:42</div>
-                            <div class="log-text"><strong>System</strong> auto-backed up database.</div>
-                        </div>
-                        <div class="log-item">
-                            <div class="log-time">09:15</div>
-                            <div class="log-text"><strong>Admin</strong> uploaded "Quantum Mechanics".</div>
-                        </div>
-                        <div class="log-item">
-                            <div class="log-time">Yesterday</div>
-                            <div class="log-text"><strong>User 842</strong> upgraded to Elite.</div>
-                        </div>
-                        <div class="log-item">
-                            <div class="log-time">Yesterday</div>
-                            <div class="log-text"><strong>Alert:</strong> High traffic detected.</div>
-                        </div>
+                        <div id="admin-activity-feed" style="overflow-y: auto; max-height: 280px;"></div>
                     </div>
                 </div>
             </section>
@@ -665,35 +645,40 @@
             <section id="view-upload" class="view-section">
                 <div class="upload-container">
                     <div class="form-side">
-                        <h2 style="margin-bottom: 1.5rem;">Upload to Vault</h2>
+                        <h2 style="margin-bottom: 1.5rem;">Upload content</h2>
                         <div class="form-group">
-                            <label class="form-label">Select Subject</label>
+                            <label class="form-label">Content type</label>
+                            <select class="form-select" id="uploadContentType">
+                                <option value="video">Video (adds to Curriculum)</option>
+                                <option value="pdf">PDF (adds to Resources)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Select batch</label>
                             <div style="display: flex; gap: 10px;">
-                                <select class="form-select" id="uploadCourseSelect" style="flex: 1;">
-                                    <!-- Populated via JS -->
-                                </select>
-                                <button onclick="addNewSubject()" title="Add New Subject"
+                                <select class="form-select" id="uploadCourseSelect" style="flex: 1;"></select>
+                                <button onclick="addNewSubject()" title="Add new batch"
                                     style="background: var(--card-bg); border: 1px solid var(--admin-accent); color: var(--admin-accent); padding: 0 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">+</button>
-                                <button onclick="deleteSubject()" title="Delete Selected Subject"
+                                <button onclick="deleteSubject()" title="Delete selected batch"
                                     style="background: var(--card-bg); border: 1px solid #ef4444; color: #ef4444; padding: 0 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">🗑</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Lesson Title</label>
+                            <label class="form-label" id="uploadTitleLabel">Lesson title</label>
                             <input type="text" class="form-input" id="uploadLessonTitle"
-                                placeholder="Enter lesson title (e.g. Thermodynamics)">
+                                placeholder="e.g. Thermodynamics">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Content Source (Video or PDF)</label>
+                            <label class="form-label" id="uploadUrlLabel">Video URL (YouTube, .mp4, etc.)</label>
                             <input type="text" class="form-input" id="uploadVideoUrl"
-                                placeholder="e.g. assets/notes.pdf, .mp4, or YouTube URL">
+                                placeholder="YouTube URL, .mp4, or video link">
                         </div>
-                        <button class="btn-upload" onclick="simulateUpload()">Start Upload</button>
+                        <button class="btn-upload" onclick="simulateUpload()">Upload</button>
                     </div>
                     <div class="drop-side">
                         <div class="drop-zone" id="dropZone">
                             <div style="font-size: 3rem; margin-bottom: 1rem;">☁️</div>
-                            <p>Drag files here</p>
+                            <p>Drag file here</p>
                             <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(this)">
                             <button onclick="document.getElementById('fileInput').click()"
                                 style="margin-top:10px; background:none; border:1px solid var(--text-grey); color:var(--text-grey); padding:5px 10px; border-radius:4px; cursor:pointer;">Browse</button>
@@ -732,25 +717,33 @@
 
             <section id="view-broadcast" class="view-section">
                 <div class="broadcast-box">
-                    <h2 style="margin-bottom: 1.5rem;">Send Announcement</h2>
+                    <h2 style="margin-bottom: 1.5rem;">Broadcast to selected batches</h2>
                     <div class="form-group">
-                        <label class="form-label">Target Audience</label>
-                        <select class="form-select">
-                            <option>All Students</option>
-                            <option>Physics Batch Only</option>
-                            <option>Elite Members Only</option>
-                        </select>
+                        <label class="form-label">Select batches (announcement will be sent to these only)</label>
+                        <div class="batch-select-wrap" style="position: relative;">
+                            <button type="button" class="form-select" id="broadcastBatchTrigger" onclick="toggleBatchDropdown()" style="text-align: left; cursor: pointer;">
+                                Select batches (0 selected)
+                            </button>
+                            <div id="broadcastBatchDropdown" class="batch-dropdown-panel" style="display: none;">
+                                <input type="text" class="form-input" id="broadcastBatchSearch" placeholder="Search batches..." oninput="filterBatchDropdown()" style="margin-bottom: 8px;">
+                                <div id="broadcastBatchList" class="batch-dropdown-list"></div>
+                                <button type="button" class="btn-upload" style="margin-top: 8px; width: 100%;" onclick="closeBatchDropdown()">Done</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Message Title</label>
-                        <input type="text" class="form-input" placeholder="e.g. Live Class Rescheduled">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-input" id="multiBroadcastMsg" rows="4" placeholder="Type your announcement..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Body</label>
-                        <textarea class="form-input" rows="5" placeholder="Type your message..."></textarea>
+                        <label class="form-label">Attach PDF URL (optional)</label>
+                        <input type="text" class="form-input" id="multiBroadcastPdf" placeholder="https://...">
                     </div>
-                    <button class="btn-upload" onclick="alert('Announcement Sent Successfully!')">Broadcast
-                        Message</button>
+                    <div class="form-group">
+                        <label class="form-label">Share link (optional)</label>
+                        <input type="text" class="form-input" id="multiBroadcastLink" placeholder="https://...">
+                    </div>
+                    <button class="btn-upload" onclick="sendMultiBatchBroadcast()">Send to selected batches</button>
                 </div>
             </section>
 
@@ -798,64 +791,146 @@
 
     <script>
         // INIT STATS
-        document.getElementById('stat-students').innerText = mockUsers.length - 1; // Exclude admin
-        document.getElementById('stat-batches').innerText = mockCourses.length;
+        document.getElementById('stat-students').innerText = State.getTotalStudents ? State.getTotalStudents() : 0;
+        document.getElementById('stat-batches').innerText = State.getCourses().length;
 
-        // --- TASKS & CALENDAR SYNC ---
+        // --- TASKS & CALENDAR (same as student: tick = delete) ---
         function renderTasksAndCalendar() {
             const tasks = State.getTasks();
-            const todoList = document.getElementById('todo-list');
+            const todoList = document.getElementById('admin-todo-list');
             const calendar = document.getElementById('admin-calendar');
+            if (!todoList) return;
 
-            // 1. Render To-Do List
             todoList.innerHTML = tasks.map(t => `
                 <div class="task-item">
-                    <div class="task-check ${t.completed ? 'checked' : ''}" onclick="toggleTask('${t.id}')"></div>
-                    <span style="${t.completed ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${t.title}</span>
-                    <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:0.7rem; color:var(--text-grey);">${t.date.slice(5)}</span>
-                        <button onclick="removeTask('${t.id}')" style="background:none; border:none; cursor:pointer; color:#ef4444; font-size:0.9rem;" title="Delete Task">🗑</button>
-                    </div>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; width:100%;">
+                        <input type="checkbox" onchange="adminDeleteTask('${t.id}')">
+                        <span>${t.title}</span>
+                        <span style="font-size:0.7rem; color:var(--text-grey); margin-left:auto;">${t.date}</span>
+                    </label>
                 </div>
-            `).join('');
+            `).join('') || '<p style="color:var(--text-grey); font-size:0.9rem;">No tasks yet.</p>';
 
-            // 2. Render Calendar (Simple Feb 2026 View)
-            // Header
-            let calHtml = `<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>`;
-
-            // Days (Feb 1st 2026 starts on Sunday (idx 6), but let's just do a simple fill for prototype)
-            // Let's assume a generic 30 day grid starting Monday for simplicity or match the previous hardcoded one
-            // Previous: 1-14 shown. Let's show full month 1-28.
-
-            for (let i = 1; i <= 28; i++) {
-                const dayStr = i < 10 ? `0${i}` : `${i}`;
-                const dateStr = `2026-02-${dayStr}`;
-
-                // Find tasks for this day
-                const dayTasks = tasks.filter(t => t.date === dateStr);
-                const hasEvent = dayTasks.length > 0;
-                const isToday = i === 11; // Hardcoded "Today" from original mock
-
-                let classes = 'cal-day';
-                if (isToday) classes += ' today';
-                if (hasEvent) classes += ' event';
-
-                // Tooltip logic could go here
-                calHtml += `<span class="${classes}" title="${dayTasks.map(t => t.title).join(', ')}">${i}</span>`;
+            if (calendar) {
+                const byDate = {};
+                tasks.forEach(t => { byDate[t.date] = (byDate[t.date] || 0) + 1; });
+                const month = new Date();
+                const monthStr = month.toLocaleString('default', { month: 'long', year: 'numeric' });
+                let html = '<div style="font-weight:600; margin-bottom:10px;">' + monthStr + '</div><div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; font-size:0.75rem;">';
+                ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => { html += '<span style="color:var(--text-grey)">' + d + '</span>'; });
+                const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+                const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+                const today = month.getDate();
+                for (let i = 0; i < firstDay; i++) html += '<span></span>';
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = month.getFullYear() + '-' + String(month.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                    const count = byDate[dateStr] || 0;
+                    const isToday = d === today;
+                    html += '<span style="padding:4px; border-radius:4px; ' + (count ? 'background:rgba(244,63,94,0.2)' : '') + (isToday ? '; border:1px solid var(--admin-accent)' : '') + '">' + d + (count ? ' (' + count + ')' : '') + '</span>';
+                }
+                html += '</div>';
+                calendar.innerHTML = html;
             }
-            calendar.innerHTML = calHtml;
         }
 
-        function toggleTask(id) {
-            State.toggleTask(id);
-            renderTasksAndCalendar(); // Re-render both to show updates
+        function adminDeleteTask(id) {
+            State.deleteTask(id);
+            renderTasksAndCalendar();
         }
 
         function removeTask(id) {
-            if (confirm("Are you sure you want to delete this task?")) {
+            if (confirm("Delete this task?")) {
                 State.deleteTask(id);
                 renderTasksAndCalendar();
             }
+        }
+
+        function renderActivityFeed() {
+            const el = document.getElementById('admin-activity-feed');
+            if (!el) return;
+            const feed = State.getActivityFeed ? State.getActivityFeed(15) : [];
+            el.innerHTML = feed.length ? feed.map(a => {
+                const time = new Date(a.time);
+                const timeStr = time.toLocaleDateString() + ' ' + time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return '<div class="log-item"><div class="log-time">' + timeStr + '</div><div class="log-text">' + (a.message || '') + '</div></div>';
+            }).join('') : '<p style="color:var(--text-grey); font-size:0.9rem;">No activity yet.</p>';
+        }
+
+        let selectedBroadcastBatchIds = [];
+        const BROADCAST_LIST_ID = 'broadcastBatchList';
+        const BROADCAST_SEARCH_ID = 'broadcastBatchSearch';
+
+        function toggleBatchDropdown() {
+            const panel = document.getElementById('broadcastBatchDropdown');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                document.getElementById(BROADCAST_SEARCH_ID).value = '';
+                renderBatchDropdownList();
+                setTimeout(function() { document.addEventListener('click', closeBatchDropdownOnClick); }, 0);
+            } else {
+                closeBatchDropdown();
+            }
+        }
+        function closeBatchDropdownOnClick(e) {
+            const panel = document.getElementById('broadcastBatchDropdown');
+            const trigger = document.getElementById('broadcastBatchTrigger');
+            if (panel && trigger && !panel.contains(e.target) && !trigger.contains(e.target)) {
+                closeBatchDropdown();
+                document.removeEventListener('click', closeBatchDropdownOnClick);
+            }
+        }
+
+        function closeBatchDropdown() {
+            document.getElementById('broadcastBatchDropdown').style.display = 'none';
+            updateBroadcastTriggerText();
+            document.removeEventListener('click', closeBatchDropdownOnClick);
+        }
+
+        function updateBroadcastTriggerText() {
+            const btn = document.getElementById('broadcastBatchTrigger');
+            if (btn) btn.textContent = 'Select batches (' + selectedBroadcastBatchIds.length + ' selected)';
+        }
+
+        function filterBatchDropdown() {
+            renderBatchDropdownList(document.getElementById(BROADCAST_SEARCH_ID).value.trim().toLowerCase());
+        }
+
+        function renderBatchDropdownList(searchQuery) {
+            const listEl = document.getElementById(BROADCAST_LIST_ID);
+            if (!listEl) return;
+            const courses = State.getCourses();
+            const query = (searchQuery || '').toLowerCase();
+            const filtered = query ? courses.filter(c => (c.title || '').toLowerCase().includes(query) || (c.id || '').toLowerCase().includes(query)) : courses;
+            listEl.innerHTML = filtered.map(c => {
+                const checked = selectedBroadcastBatchIds.includes(c.id);
+                return '<label><input type="checkbox" value="' + c.id + '" ' + (checked ? 'checked' : '') + ' onchange="toggleBroadcastBatch(\'' + c.id + '\', this.checked)"> ' + (c.title || c.id) + '</label>';
+            }).join('');
+        }
+
+        function toggleBroadcastBatch(id, checked) {
+            if (checked) selectedBroadcastBatchIds.push(id);
+            else selectedBroadcastBatchIds = selectedBroadcastBatchIds.filter(x => x !== id);
+            updateBroadcastTriggerText();
+        }
+
+        function renderBroadcastBatchCheckboxes() {
+            selectedBroadcastBatchIds = [];
+            updateBroadcastTriggerText();
+            renderBatchDropdownList();
+        }
+
+        function sendMultiBatchBroadcast() {
+            const msg = document.getElementById('multiBroadcastMsg') && document.getElementById('multiBroadcastMsg').value.trim();
+            if (!msg) { alert('Enter a message.'); return; }
+            if (selectedBroadcastBatchIds.length === 0) { alert('Select at least one batch from the dropdown.'); return; }
+            const pdf = document.getElementById('multiBroadcastPdf') && document.getElementById('multiBroadcastPdf').value.trim();
+            const link = document.getElementById('multiBroadcastLink') && document.getElementById('multiBroadcastLink').value.trim();
+            const n = State.addAnnouncementToBatches(selectedBroadcastBatchIds, msg, { pdfUrl: pdf || null, link: link || null });
+            alert('Sent to ' + n + ' batch(es).');
+            document.getElementById('multiBroadcastMsg').value = '';
+            if (document.getElementById('multiBroadcastPdf')) document.getElementById('multiBroadcastPdf').value = '';
+            if (document.getElementById('multiBroadcastLink')) document.getElementById('multiBroadcastLink').value = '';
+            renderActivityFeed();
         }
 
         function addNewTask() {
@@ -976,39 +1051,108 @@
             currentBatchId = courseId;
             const course = State.getCourses().find(c => c.id === courseId);
             if (!course) return;
-
             document.getElementById('detailBatchTitle').innerText = course.title;
-
-            // Render Content List
-            const contentList = document.getElementById('detailContentList');
-            if (course.lessons && course.lessons.length > 0) {
-                contentList.innerHTML = course.lessons.map(l => `
-                    <div style="padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 5px; border-radius: 6px; display: flex; justify-content: space-between;">
-                        <span>${l.title}</span>
-                        <span style="font-size: 0.8rem; color: var(--text-grey);">${l.videoUrl ? (l.videoUrl.endsWith('.pdf') ? '📄 PDF' : '🎥 Video') : 'Pending'}</span>
-                    </div>
-                `).join('');
-            } else {
-                contentList.innerHTML = '<p style="color: var(--text-grey);">No content uploaded yet.</p>';
-            }
-
-            // RENDER BROADCAST HISTORY
-            const historyContainer = document.getElementById('broadcastHistoryList');
-            if (course.announcements && course.announcements.length > 0) {
-                historyContainer.innerHTML = course.announcements.map(a => `
-                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
-                            <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
-                        </div>
-                        <button onclick="deleteBatchBroadcast(${a.timestamp})" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.2rem; margin-left: 10px;">🗑</button>
-                    </div>
-                `).join('');
-            } else {
-                historyContainer.innerHTML = `<p style="color: var(--text-grey); font-style: italic; font-size: 0.9rem;">No broadcasts sent yet.</p>`;
-            }
-
+            document.getElementById('batch-stat-enrolled').innerText = State.getStudentCount(courseId);
+            document.getElementById('batch-stat-lessons').innerText = (course.lessons && course.lessons.length) || 0;
+            document.querySelectorAll('.batch-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.batch-tab[data-tab="performance"]').classList.add('active');
+            document.querySelectorAll('.batch-tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById('batch-tab-performance').style.display = 'block';
+            renderBatchVideoAnalytics();
+            renderBatchStudents();
+            renderBroadcastHistory();
             document.getElementById('batchDetailModal').style.display = 'flex';
+        }
+
+        function switchBatchTab(tabName) {
+            document.querySelectorAll('.batch-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+            document.querySelectorAll('[id^="batch-tab-"]').forEach(el => {
+                el.style.display = el.id === 'batch-tab-' + tabName ? 'block' : 'none';
+            });
+        }
+
+        function renderBatchVideoAnalytics() {
+            const course = State.getCourse(currentBatchId);
+            const list = document.getElementById('batchVideoAnalyticsList');
+            if (!list) return;
+            if (!course || !course.lessons || course.lessons.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-grey);">No videos yet.</p>';
+                return;
+            }
+            list.innerHTML = course.lessons.map((l, i) => `
+                <div style="padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${i + 1}. ${l.title}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-grey);">Views / completion – connect backend for real analytics</span>
+                </div>
+            `).join('');
+        }
+
+        function submitBatchUpload() {
+            const place = document.getElementById('uploadPlaceSelect').value;
+            const title = document.getElementById('batchUploadTitle').value.trim();
+            const url = document.getElementById('batchUploadUrl').value.trim();
+            if (!title || !url) { alert('Enter title and URL.'); return; }
+            const course = State.getCourse(currentBatchId);
+            const courseName = course ? course.title : currentBatchId;
+            if (place === 'curriculum') {
+                State.addOrUpdateLesson(currentBatchId, title, url);
+                State.logActivity('upload', 'Video "' + title + '" added to ' + courseName, { courseId: currentBatchId, type: 'curriculum' });
+                alert('Video added to curriculum.');
+            } else {
+                State.addCourseResource(currentBatchId, title, url, 'pdf');
+                State.logActivity('upload', 'PDF "' + title + '" added to resources in ' + courseName, { courseId: currentBatchId, type: 'resource' });
+                alert('Resource added.');
+            }
+            document.getElementById('batchUploadTitle').value = '';
+            document.getElementById('batchUploadUrl').value = '';
+            renderBatchVideoAnalytics();
+            renderActivityFeed();
+        }
+
+        function renderBatchStudents() {
+            const list = document.getElementById('batchStudentsList');
+            if (!list) return;
+            const users = State.getEnrolledUsersForBatch(currentBatchId);
+            const blocked = State.getBlockedForBatch(currentBatchId) || [];
+            if (users.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-grey);">No students enrolled yet.</p>';
+                return;
+            }
+            list.innerHTML = users.map(u => {
+                const isBlocked = blocked.includes(u.email);
+                return `
+                <div style="padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                    <div><strong>${u.name || u.email}</strong><br><span style="font-size: 0.8rem; color: var(--text-grey);">${u.email}</span></div>
+                    <button onclick="toggleBlockStudent('${u.email.replace(/'/g, "\\'")}')" style="background: ${isBlocked ? '#10b981' : '#ef4444'}; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">${isBlocked ? 'Unblock' : 'Block'}</button>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleBlockStudent(email) {
+            if (State.isBlocked(currentBatchId, email))
+                State.unblockStudent(currentBatchId, email);
+            else
+                State.blockStudent(currentBatchId, email);
+            renderBatchStudents();
+        }
+
+        function renderBroadcastHistory() {
+            const course = State.getCourse(currentBatchId);
+            const historyContainer = document.getElementById('broadcastHistoryList');
+            if (!historyContainer) return;
+            const ann = (course && course.announcements) || [];
+            if (ann.length === 0) {
+                historyContainer.innerHTML = '<p style="color: var(--text-grey); font-style: italic; font-size: 0.9rem;">No broadcasts yet.</p>';
+                return;
+            }
+            historyContainer.innerHTML = ann.map(a => `
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
+                    <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
+                    ${a.link ? '<a href="' + a.link + '" target="_blank" style="font-size: 0.8rem; color: var(--admin-accent);">Link</a>' : ''}
+                    <button onclick="deleteBatchBroadcast(${a.timestamp})" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1rem; margin-left: 8px;">🗑</button>
+                </div>
+            `).join('');
         }
 
         function deleteBatchBroadcast(timestamp) {
@@ -1024,56 +1168,62 @@
         }
 
         function sendBatchBroadcast() {
-            const msg = document.getElementById('broadcastMsg').value;
+            const msg = document.getElementById('broadcastMsg').value.trim();
             if (!msg) return alert("Please enter a message!");
-
-            State.addAnnouncement(currentBatchId, msg);
-
-            alert("Broadcast sent successfully to all enrolled students!");
+            const pdfUrl = document.getElementById('broadcastPdfUrl') && document.getElementById('broadcastPdfUrl').value.trim();
+            const link = document.getElementById('broadcastLink') && document.getElementById('broadcastLink').value.trim();
+            State.addAnnouncement(currentBatchId, msg, { pdfUrl: pdfUrl || null, link: link || null });
+            const course = State.getCourse(currentBatchId);
+            State.logActivity('broadcast', 'Broadcast to ' + (course ? course.title : currentBatchId), { courseIds: [currentBatchId] });
+            alert("Broadcast sent to this batch.");
             document.getElementById('broadcastMsg').value = '';
-
-            // Re-render to show new message in history
-            openBatchDetails(currentBatchId);
+            if (document.getElementById('broadcastPdfUrl')) document.getElementById('broadcastPdfUrl').value = '';
+            if (document.getElementById('broadcastLink')) document.getElementById('broadcastLink').value = '';
+            renderBroadcastHistory();
+            renderActivityFeed();
         }
 
-        // Expose simulateUpload globally
         window.simulateUpload = function () {
+            const contentType = document.getElementById('uploadContentType') && document.getElementById('uploadContentType').value;
             const courseId = uploadCourseSelect.value;
-            const lessonTitle = document.getElementById('uploadLessonTitle').value;
-            const videoUrl = document.getElementById('uploadVideoUrl').value;
+            const lessonTitle = document.getElementById('uploadLessonTitle').value.trim();
+            const videoUrl = document.getElementById('uploadVideoUrl').value.trim();
+            if (!lessonTitle || !videoUrl) { alert('Enter title and URL.'); return; }
 
-            if (!videoUrl || !lessonTitle) {
-                alert("Please enter a lesson title and video URL/Path.");
-                return;
-            }
-
-            const btn = document.querySelector('.btn-upload');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Uploading... ⏳';
-            btn.disabled = true;
+            const btn = document.querySelector('#view-upload .btn-upload');
+            const originalText = btn ? btn.innerHTML : 'Upload';
+            if (btn) { btn.innerHTML = 'Uploading...'; btn.disabled = true; }
 
             setTimeout(() => {
-                State.addOrUpdateLesson(courseId, lessonTitle, videoUrl);
-                btn.innerHTML = 'Upload Complete ✅';
-                btn.style.background = '#10b981';
-
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    btn.style.background = ''; // Revert to CSS
-                    document.getElementById('uploadVideoUrl').value = '';
-                    document.getElementById('uploadLessonTitle').value = '';
-                    alert(`Lesson "${lessonTitle}" added/updated successfully!\n\nCheck the Student Dashboard.`);
-                }, 2000);
-            }, 1500);
+                const course = State.getCourse(courseId);
+                const courseName = course ? course.title : courseId;
+                if (contentType === 'pdf') {
+                    State.addCourseResource(courseId, lessonTitle, videoUrl, 'pdf');
+                    State.logActivity('upload', 'PDF resource "' + lessonTitle + '" added to ' + courseName, { courseId, type: 'resource' });
+                } else {
+                    State.addOrUpdateLesson(courseId, lessonTitle, videoUrl);
+                    State.logActivity('upload', 'Video "' + lessonTitle + '" added to curriculum in ' + courseName, { courseId, type: 'curriculum' });
+                }
+                document.getElementById('uploadVideoUrl').value = '';
+                document.getElementById('uploadLessonTitle').value = '';
+                if (btn) { btn.innerHTML = 'Upload complete'; btn.disabled = false; setTimeout(() => { btn.innerHTML = originalText; }, 1500); }
+                renderActivityFeed();
+                alert('Content added. Students will see it in the batch.');
+            }, 800);
         };
 
-        // Initial render
+        document.getElementById('uploadContentType').addEventListener('change', function() {
+            const isVideo = this.value === 'video';
+            const label = document.getElementById('uploadTitleLabel');
+            const urlLabel = document.getElementById('uploadUrlLabel');
+            if (label) label.textContent = isVideo ? 'Lesson title' : 'Resource title';
+            if (urlLabel) urlLabel.textContent = isVideo ? 'Video URL (YouTube, .mp4, etc.)' : 'PDF or resource URL';
+        });
+
         renderUploadOptions();
-
-
-        // Initial Render
         renderTasksAndCalendar();
+        renderBroadcastBatchCheckboxes();
+        renderActivityFeed();
 
         // RENDER ADMIN BATCHES
         function renderAdminBatches() {
@@ -1127,37 +1277,72 @@
     <div class="modal-overlay" id="batchDetailModal"
         style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
         <div class="modal-content"
-            style="background: var(--card-bg); width: 600px; max-width: 90%; border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color);">
+            style="background: var(--card-bg); width: 700px; max-width: 95%; max-height: 90vh; border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h2 id="detailBatchTitle" style="color:white;">Course Details</h2>
+                <h2 id="detailBatchTitle" style="color:white;">Batch</h2>
                 <button onclick="closeBatchDetail()"
                     style="background:none; border:none; color:white; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
-
-            <div style="margin-bottom: 2rem;">
-                <h3
-                    style="font-size: 1rem; color: var(--text-grey); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
-                    Uploaded Content</h3>
-                <div id="detailContentList" style="max-height: 200px; overflow-y: auto;">
-                    <!-- Dynamic Content -->
+            <div style="display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button class="batch-tab active" data-tab="performance" onclick="switchBatchTab('performance')">Performance</button>
+                <button class="batch-tab" data-tab="analytics" onclick="switchBatchTab('analytics')">Video Analytics</button>
+                <button class="batch-tab" data-tab="upload" onclick="switchBatchTab('upload')">Upload Content</button>
+                <button class="batch-tab" data-tab="broadcast" onclick="switchBatchTab('broadcast')">Broadcast</button>
+                <button class="batch-tab" data-tab="students" onclick="switchBatchTab('students')">Students</button>
+            </div>
+            <div id="batch-tab-performance" class="batch-tab-content">
+                <h3 style="font-size: 0.9rem; color: var(--text-grey); margin-bottom: 10px;">Batch statistics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="stat-card"><div class="stat-val" id="batch-stat-enrolled">0</div><div class="stat-label">Enrolled</div></div>
+                    <div class="stat-card"><div class="stat-val" id="batch-stat-lessons">0</div><div class="stat-label">Lessons</div></div>
                 </div>
             </div>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                <h3 style="font-size: 1rem; color: var(--admin-accent); margin-bottom: 10px;">📢 Broadcast to
-                    Students</h3>
-                <textarea id="broadcastMsg" rows="3" placeholder="Write an announcement for this batch..."
-                    style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 6px; margin-bottom: 10px;"></textarea>
-                <button onclick="sendBatchBroadcast()"
-                    style="background: var(--admin-accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">Send
-                    Broadcast</button>
+            <div id="batch-tab-analytics" class="batch-tab-content" style="display:none;">
+                <h3 style="font-size: 0.9rem; color: var(--text-grey); margin-bottom: 10px;">Per-video performance</h3>
+                <div id="batchVideoAnalyticsList"></div>
             </div>
-
-            <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <h3 style="font-size: 0.9rem; color: var(--text-grey); margin-bottom: 10px;">RECENT BROADCASTS</h3>
-                <div id="broadcastHistoryList" style="max-height: 150px; overflow-y: auto;">
-                    <!-- History Rendered Here -->
+            <div id="batch-tab-upload" class="batch-tab-content" style="display:none;">
+                <div class="form-group">
+                    <label class="form-label">Content type</label>
+                    <select id="uploadPlaceSelect" class="form-select">
+                        <option value="curriculum">Video (add to Curriculum)</option>
+                        <option value="resources">PDF (add to Resources)</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="batchUploadTitle" placeholder="Lesson or resource title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL</label>
+                    <input type="text" class="form-input" id="batchUploadUrl" placeholder="YouTube, .mp4, .pdf, or link">
+                </div>
+                <button class="btn-upload" onclick="submitBatchUpload()">Add to batch</button>
+            </div>
+            <div id="batch-tab-broadcast" class="batch-tab-content" style="display:none;">
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea id="broadcastMsg" rows="3" placeholder="Write an announcement for this batch..."
+                        style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 6px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Attach PDF (optional URL)</label>
+                    <input type="text" class="form-input" id="broadcastPdfUrl" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Share link (optional)</label>
+                    <input type="text" class="form-input" id="broadcastLink" placeholder="https://...">
+                </div>
+                <button class="btn-upload" onclick="sendBatchBroadcast()">Send broadcast</button>
+                <h3 style="font-size: 0.9rem; color: var(--text-grey); margin: 1.5rem 0 10px;">Recent broadcasts</h3>
+                <div id="broadcastHistoryList" style="max-height: 150px; overflow-y: auto;"></div>
+            </div>
+            <div id="batch-tab-students" class="batch-tab-content" style="display:none;">
+                <h3 style="font-size: 0.9rem; color: var(--text-grey); margin-bottom: 10px;">Enrolled students – block/unblock access</h3>
+                <div id="batchStudentsList"></div>
+            </div>
+            <div id="batch-tab-content-legacy" style="display:none;">
+                <div id="detailContentList"></div>
             </div>
         </div>
     </div>

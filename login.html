@@ -294,23 +294,28 @@
             }, 800);
         });
 
-        // 4. SIGNUP LOGIC (Always Students)
+        // 4. SIGNUP LOGIC (Always Students) — uses State.signup
         document.getElementById('signupForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const inputs = e.target.querySelectorAll('input');
-            const name = inputs[0].value;
+            const name = inputs[0].value.trim();
+            const email = inputs[1].value.trim();
+            const password = inputs[2].value;
             const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
 
             btn.disabled = true;
-            btn.innerText = "Setting up Dashboard...";
+            btn.innerText = "Creating account...";
 
-            // Save Name for personalized welcome
-            if (name) localStorage.setItem('neuraUserName', name);
-            localStorage.setItem('neuraUserType', 'new');
-
-            setTimeout(() => {
+            const result = State.signup(name, email, password);
+            if (result.success) {
+                btn.innerText = "Success! Redirecting...";
                 window.location.href = 'dashboard.html';
-            }, 1000);
+            } else {
+                alert(result.message || "Sign up failed.");
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         });
     </script>
 

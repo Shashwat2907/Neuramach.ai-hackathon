@@ -36,31 +36,65 @@
             user-select: none;
         }
 
-        /* --- 1. SIDEBAR --- */
+        /* --- 1. SIDEBAR (expandable) --- */
         .sidebar {
             width: 260px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            padding: 1.5rem;
+            padding: 1rem;
             flex-shrink: 0;
             z-index: 20;
+            transition: width 0.25s ease;
+            overflow: hidden;
         }
+        .sidebar.collapsed {
+            width: 72px;
+            padding: 1rem 0.5rem;
+            align-items: center;
+        }
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .nav-label,
+        .sidebar.collapsed .logo-text { display: none; }
+        .sidebar.collapsed .nav-item { justify-content: center; padding: 0.75rem; margin-left: 0; margin-right: 0; min-width: 44px; }
+        .sidebar.collapsed .logo { justify-content: center; margin-bottom: 0; }
+        .sidebar.collapsed .sidebar-header { flex-direction: column; gap: 0.5rem; justify-content: flex-start; align-items: center; }
+        .sidebar.collapsed .sidebar-toggle { margin-left: 0; align-self: center; }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 1.5rem; }
+        .sidebar .logo { margin-bottom: 0; }
+        .sidebar-toggle {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: var(--text-grey);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-toggle span { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 1px; }
+        .sidebar:not(.collapsed) .sidebar-header { justify-content: flex-end; }
+        .sidebar:not(.collapsed) .sidebar-toggle { margin-left: auto; }
+        .sidebar.collapsed .sidebar-toggle { align-self: center; margin-left: 0; }
+        .sidebar.collapsed .sidebar-header { justify-content: center; }
+        .sidebar-toggle:hover { color: white; }
 
         .logo {
             font-size: 1.4rem;
             font-weight: 800;
             color: white;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-
-        .logo span {
-            color: var(--primary-blue);
-        }
+        .logo-text { white-space: nowrap; }
+        .logo span { color: var(--primary-blue); }
 
         .nav-label {
             font-size: 0.75rem;
@@ -93,32 +127,29 @@
         .nav-item.active {
             border-left: 3px solid var(--primary-blue);
         }
-
-        .upgrade-card {
-            margin-top: auto;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(124, 58, 237, 0.1));
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            padding: 1.2rem;
-            border-radius: 16px;
-            text-align: center;
-        }
+        .nav-text { white-space: nowrap; }
+        .sub-nav { margin-left: 0.5rem; margin-top: 0.25rem; display: flex; flex-direction: column; gap: 2px; }
+        .sidebar.collapsed .sub-nav { margin-left: 0; }
+        .sub-nav .nav-item { padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+        .sub-nav .nav-text { font-size: 0.85rem; }
 
         .upgrade-btn {
             background: var(--primary-blue);
             color: white;
             border: none;
-            width: 100%;
-            padding: 0.6rem;
+            padding: 0.6rem 1rem;
             border-radius: 8px;
-            margin-top: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
         }
+        .upgrade-btn:hover { background: #2563eb; }
 
-        .upgrade-btn:hover {
-            background: #2563eb;
-        }
+        .home-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        .home-col { display: flex; flex-direction: column; min-width: 0; width: 100%; }
+        .todo-list-box { min-height: 0; margin-bottom: 0.5rem; }
+        .todo-list-box.has-tasks { min-height: 120px; }
+        .calendar-box { min-height: 240px; flex: 1; }
 
         /* --- 2. MAIN AREA --- */
         .main-wrapper {
@@ -843,291 +874,131 @@
             font-size: 1.1rem;
         }
 
-        .chat-window {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 350px;
-            height: 500px;
-            background: #1e293b;
-            border-radius: 20px;
-            z-index: 99;
-            display: none;
-            flex-direction: column;
-            border: 1px solid var(--border-color);
-        }
-
-        .chat-window.active {
-            display: flex;
-        }
-
-        .chat-header {
-            background: var(--primary-blue);
-            padding: 1rem;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .chat-body {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chat-input {
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 5px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            color: white;
-            outline: none;
-        }
-
-        .msg {
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            max-width: 80%;
-        }
-
-        .msg.bot {
-            background: rgba(255, 255, 255, 0.1);
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
-        }
-
-        .msg.user {
-            background: var(--primary-blue);
-            align-self: flex-end;
-            border-bottom-right-radius: 0;
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #3b82f6, #7c3aed);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            cursor: pointer;
-            z-index: 100;
-            transition: 0.3s;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-        }
     </style>
 </head>
 
 <body oncontextmenu="return false;">
 
-    <div class="sidebar">
-        <div class="logo">🔒 Neura<span>Vault</span></div>
-        <div class="nav-label">Menu</div>
-        <a class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')"><span>🏠</span> Dashboard</a>
-        <a class="nav-item" id="nav-catalog" onclick="switchView('catalog')"><span>🔍</span> Browse Catalog</a>
-        <a class="nav-item" id="nav-batches" onclick="switchView('batches')"><span>📚</span> My Batches</a>
-        <a class="nav-item" id="nav-notes" onclick="switchView('notes')"><span>📝</span> Smart Notes</a>
-        <a class="nav-item" id="nav-performance" onclick="switchView('performance')"><span>📊</span> Performance</a>
-        <div class="nav-label" style="margin-top: 2rem;">Support</div>
-        <a class="nav-item" onclick="toggleChat()"><span>🤖</span> NeuraBot</a>
-        <a class="nav-item" id="nav-settings" onclick="switchView('settings')"><span>⚙️</span> Settings</a>
-        <div class="upgrade-card">
-            <h4 style="margin-bottom: 5px;">Go Elite</h4>
-            <button class="upgrade-btn" onclick="window.location.href='pricing.html'">Upgrade Now</button>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">🔒 <span class="logo-text">Neura<span>Vault</span></span></div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()" title="Expand/Collapse"><span></span><span></span><span></span></button>
         </div>
+        <div class="nav-label">Menu</div>
+        <a class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')"><span>🏠</span><span class="nav-text">Home</span></a>
+        <div class="nav-label">Batches</div>
+        <a class="nav-item" id="nav-browse" onclick="switchView('browse')"><span>🔍</span><span class="nav-text">Browse</span></a>
+        <a class="nav-item" id="nav-enrolled" onclick="switchView('enrolled')"><span>📚</span><span class="nav-text">Enrolled</span></a>
+        <a class="nav-item" id="nav-settings" onclick="switchView('settings')" style="margin-top: auto;"><span>⚙️</span><span class="nav-text">Settings</span></a>
     </div>
 
     <div class="main-wrapper">
         <header>
-            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search courses..."></div>
-            <div class="header-actions">
-                <div class="streak">🔥 12</div>
-                <div class="profile-pic">JD</div>
+            <div style="width: 1px;"></div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="profile-pic" id="headerProfile">?</div>
+                <button class="upgrade-btn" style="background: rgba(239,68,68,0.2); color: #f87171;" onclick="State.logout()">Logout</button>
             </div>
         </header>
 
         <div class="content-area">
 
             <section id="view-dashboard" class="view-section active">
-
                 <div class="welcome-section">
-                    <h1 class="welcome-title" id="welcome-title">Welcome Back, <span class="welcome-name"
-                            id="user-name">Student</span> 👋</h1>
+                    <h1 class="welcome-title" id="welcome-title">Welcome, <span class="welcome-name" id="user-name">Student</span> 👋</h1>
                     <p class="welcome-sub" id="welcome-sub">Ready to continue your learning journey?</p>
                 </div>
-
-                <div class="hero-card">
+                <div class="hero-card" id="resume-card" style="display: none;">
                     <div class="hero-content">
-                        <div style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">CONTINUE LEARNING</div>
-                        <h2>Quantum Mechanics: Wave Functions</h2>
-                        <p>Unit 3 • Lesson 4 • Stopped at 14:20</p>
-                        <button class="ai-summary-btn" onclick="openModal('summaryModal')">✨ View AI Summary</button>
+                        <div style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">LAST VIEWED</div>
+                        <h2 id="resume-course-title">—</h2>
+                        <p id="resume-lesson-info">Resume from where you left off</p>
+                        <button class="upgrade-btn" id="resume-btn">Resume</button>
                     </div>
-                    <div style="width: 300px;">
-                        <div
-                            style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
-                            <span>65% Complete</span>
-                            <span>25m left</span>
+                    <div style="width: 280px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                            <span id="resume-progress-pct">0%</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
+                        <div class="progress-bar"><div class="progress-fill" id="resume-progress-fill"></div></div>
                     </div>
                 </div>
-
-                <div class="stats-row">
+                <div class="stats-row" style="margin-bottom: 2rem;">
                     <div class="stat-card">
-                        <div class="stat-val">24.5h</div>
-                        <div class="stat-label">Hours Studied</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-val">4</div>
+                        <div class="stat-val" id="stat-courses">0</div>
                         <div class="stat-label">Enrolled Courses</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-val" style="color: #a78bfa;">142</div>
-                        <div class="stat-label">AI Doubts Solved</div>
-                    </div>
                 </div>
-
-                <h3>Recent Batches</h3>
-                <div class="course-grid" style="margin-top: 1rem;" id="dashboard-course-list">
-                    <!-- Dynamic Content -->
+                <div class="home-two-col">
+                    <div class="home-col">
+                        <h3 style="margin-bottom: 1rem;">To-Do Tracker</h3>
+                        <div id="todo-list" class="todo-list-box"></div>
+                        <input type="text" id="todo-input" class="form-input" placeholder="Add a task..." style="margin-top: 0.5rem;">
+                        <input type="date" id="todo-date" class="form-input" style="margin-top: 0.5rem;">
+                        <button class="upgrade-btn" style="margin-top: 0.5rem;" onclick="addTodo()">Add</button>
+                    </div>
+                    <div class="home-col">
+                        <h3 style="margin-bottom: 1rem;">Calendar</h3>
+                        <div id="mini-calendar" class="stat-card calendar-box"></div>
+                    </div>
                 </div>
             </section>
 
-            <section id="view-catalog" class="view-section">
-                <h2 style="margin-bottom: 2rem;">Course Catalog</h2>
+            <section id="view-browse" class="view-section">
+                <h2 style="margin-bottom: 2rem;">Browse Courses</h2>
                 <div class="search-bar" style="width: 100%; margin-bottom: 2rem;">
-                    <span>🔍</span><input type="text" id="catalogSearch"
-                        placeholder="Search for physics, math, biology..." onkeyup="renderCatalog()">
+                    <span>🔍</span><input type="text" id="catalogSearch" placeholder="Search for physics, math, biology..." onkeyup="renderCatalog()">
                 </div>
-                <div class="course-grid" id="catalog-course-list">
-                    <!-- Dynamic Content -->
-                </div>
+                <div class="course-grid" id="catalog-course-list"></div>
             </section>
 
-
-
-            <section id="view-batches" class="view-section">
-                <h2 style="margin-bottom: 2rem;">My Batches Library</h2>
-                <div class="course-grid">
-                    <div class="course-card" onclick="openCourseDetail()">
-                        <div class="thumbnail">⚛️</div>
-                        <div class="card-body">
-                            <div class="tag">Physics</div>
-                            <div class="card-title">Advanced Physics</div>
-                            <div class="card-meta"><span>12 Lessons</span><span>4.8 ★</span></div>
-                        </div>
-                    </div>
-                    <div class="course-card">
-                        <div class="thumbnail">📐</div>
-                        <div class="card-body">
-                            <div class="tag">Math</div>
-                            <div class="card-title">Calculus II</div>
-                            <div class="card-meta"><span>24 Lessons</span><span>4.7 ★</span></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-notes" class="view-section">
-                <h2 style="margin-bottom: 2rem;">Smart Notes</h2>
-                <div class="course-grid">
-                    <div class="note-card" onclick="openModal('summaryModal')">
-                        <div class="note-date">Feb 10, 2026</div>
-                        <h3 style="margin-bottom:0.5rem;">Quantum Mechanics: Wave Functions</h3>
-                        <p class="note-preview">Key insight: The wave function collapses upon observation.</p>
-                        <span class="note-tag">Physics</span>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-performance" class="view-section">
-                <h2 style="margin-bottom: 2rem;">My Performance</h2>
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-val">92%</div>
-                        <div class="stat-label">Attendance</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-val">A</div>
-                        <div class="stat-label">Avg Grade</div>
-                    </div>
-                </div>
-                <div class="hero-card" style="align-items: flex-start; flex-direction: column;">
-                    <h3>Weekly Progress</h3>
-                    <div class="progress-bar" style="width: 100%; margin-top: 1rem;">
-                        <div class="progress-fill" style="width: 85%;"></div>
-                    </div>
-                    <p style="margin-top: 1rem; color: var(--text-grey);">You are ahead of 85% of your peers in the
-                        Physics batch.</p>
-                </div>
+            <section id="view-enrolled" class="view-section">
+                <h2 style="margin-bottom: 2rem;">Enrolled Batches</h2>
+                <div class="course-grid" id="enrolled-course-list"></div>
             </section>
 
             <section id="view-course-detail" class="view-section">
-                <button onclick="switchView('home')"
-                    style="background:none; border:none; color:var(--text-grey); cursor:pointer; margin-bottom:1rem;">←
-                    Back to Dashboard</button>
-                <div class="hero-card" style="margin-bottom: 2rem;">
+                <button class="back-btn" onclick="switchView('enrolled')">← Back to Enrolled</button>
+                <div class="hero-card" style="margin-bottom: 1rem;">
                     <div style="flex:1;">
-                        <span class="tag">Physics • Batch 2026</span>
-                        <h1 style="font-size: 2rem; margin: 0.5rem 0;">Advanced Quantum Mechanics</h1>
+                        <span class="tag" id="detail-tag">—</span>
+                        <h1 style="font-size: 2rem; margin: 0.5rem 0;" id="detail-title">—</h1>
                         <div class="instructor-info">
-                            <div class="avatar">👨‍🏫</div>
-                            <span>Dr. Richard Feynman • 12 Lessons</span>
+                            <span class="instructor-avatar">👨‍🏫</span>
+                            <span id="detail-instructor">—</span>
                         </div>
-                        <p style="margin-top: 1rem; color: var(--text-grey); max-width: 600px;">
-                            Master the fundamental principles of quantum mechanics...
-                        </p>
                     </div>
-                    <div style="font-size: 5rem; opacity: 0.2;">⚛️</div>
                 </div>
-
+                <div class="stats-row" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card"><div class="stat-val" id="detail-progress">0%</div><div class="stat-label">Progress</div></div>
+                    <div class="stat-card"><div class="stat-val" id="detail-level">1</div><div class="stat-label">Level</div></div>
+                    <div class="stat-card"><div class="stat-val" id="detail-streak">🔥 0</div><div class="stat-label">Streak</div></div>
+                </div>
                 <div class="tabs-nav">
                     <div class="tab-link active" id="tab-curriculum" onclick="switchTab('curriculum')">Curriculum</div>
                     <div class="tab-link" id="tab-resources" onclick="switchTab('resources')">Resources</div>
-                    <div class="tab-link" id="tab-announcements" onclick="switchTab('announcements')">📢 Updates</div>
+                    <div class="tab-link" id="tab-analytics" onclick="switchTab('analytics')">Analytics</div>
+                    <div class="tab-link" id="tab-announcements" onclick="switchTab('announcements')">Broadcast</div>
+                    <div class="tab-link" id="tab-about" onclick="switchTab('about')">About</div>
                 </div>
 
-                <!-- TAB 1: Curriculum -->
-                <div id="content-curriculum" class="tab-content active"
-                    style="display:flex; flex-direction:column; gap:10px;">
-                    <!-- Lessons rendered here -->
-                </div>
-
-                <!-- TAB 2: Resources -->
+                <div id="content-curriculum" class="tab-content active" style="display:flex; flex-direction:column; gap:10px;"></div>
                 <div id="content-resources" class="tab-content" style="display:none; flex-direction:column; gap:10px;">
-                    <p style="color:var(--text-grey);">No additional resources available for this course.</p>
+                    <p style="color:var(--text-grey);">Course resources and NeuraAI-generated content.</p>
+                    <div id="content-resources-list"></div>
+                    <h4 style="margin-top: 1.5rem;">NeuraAI Resources</h4>
+                    <div id="content-ai-resources"></div>
                 </div>
-
-                <!-- TAB 3: Announcements -->
-                <div id="content-announcements" class="tab-content"
-                    style="display:none; flex-direction:column; gap:10px;">
-                    <h3 style="color:white; font-size:1rem; margin-bottom:10px;">Instructor Announcements</h3>
-                    <div id="course-notices">
-                        <!-- Loaded via JS -->
-                    </div>
+                <div id="content-analytics" class="tab-content" style="display:none;">
+                    <h3 style="margin-bottom: 1rem;">Quiz performance</h3>
+                    <p style="color: var(--text-grey);">Your quiz scores after each lesson in this batch.</p>
+                    <div id="content-analytics-list"></div>
+                </div>
+                <div id="content-announcements" class="tab-content" style="display:none; flex-direction:column; gap:10px;">
+                    <h3 style="color:white; font-size:1rem; margin-bottom:10px;">Broadcast – Announcements</h3>
+                    <div id="course-notices"></div>
+                </div>
+                <div id="content-about" class="tab-content" style="display:none;">
+                    <div id="content-about-body" style="color: var(--text-grey); line-height: 1.6;"></div>
                 </div>
             </section>
 
@@ -1146,56 +1017,35 @@
         </div>
     </div>
 
-    <div class="fab" onclick="toggleChat()">🤖</div>
-    <div class="chat-window" id="chatWindow">
-        <div class="chat-header"><span>NeuraBot</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span>
-        </div>
-        <div class="chat-body" id="chatBody">
-            <div class="msg bot">Hello! How can I help you today?</div>
-        </div>
-        <div class="chat-input"><input type="text" id="chatInput" placeholder="Type a doubt..."
-                onkeypress="handleEnter(event)"><button onclick="sendMessage()"
-                style="background:var(--primary-blue); border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">→</button>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="videoModal">
         <div class="video-modal-content">
             <span class="close-modal" onclick="closeModal('videoModal')">✕</span>
-            <div class="video-container">
-                <div
-                    style="position: absolute; inset:0; background: #111; display: flex; align-items: center; justify-content: center; color: #555;">
-                    [ SECURE VIDEO STREAM ACTIVE ]</div>
-                <div class="dynamic-watermark">student@neuramach.ai</div>
+            <div class="video-main">
+                <div class="video-container" id="videoContainerEl"></div>
+                <div style="padding: 1rem; background: #0f172a; border-top: 1px solid var(--border-color);">
+                    <h3 id="playerLessonTitle">Lesson</h3>
+                    <p style="color: var(--text-grey); font-size: 0.9rem;">Protected content. Screen recording disabled. Video URL is not displayed or shareable.</p>
+                    <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="ai-summary-btn" onclick="requestAITranscription(this)">📝 AI Transcription</button>
+                        <button class="ai-summary-btn" onclick="requestAIQuiz(this)">❓ AI Quiz</button>
+                        <button class="ai-summary-btn" onclick="requestAISmartNotes(this)">✨ AI Smart Notes</button>
+                    </div>
+                </div>
             </div>
-            <div style="padding: 1.5rem;">
-                <h3>02. Wave Functions & Probability</h3>
-                <p style="color: var(--text-grey); font-size: 0.9rem;">Protected Content. Screen recording is disabled.
-                </p>
-            </div>
+            <div class="dynamic-watermark" id="videoWatermark">user@neuramach.ai</div>
         </div>
     </div>
 
     <div class="modal-overlay" id="pdfModal">
-        <div class="pdf-modal-content">
+        <div class="pdf-modal-content" style="display:flex; flex-direction:column; max-width:95vw; width:900px;">
             <div class="pdf-toolbar">
                 <span id="pdfTitle">Document Viewer</span>
-                <span
-                    style="color: #ef4444; font-size: 0.8rem; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px;">PRINT/DOWNLOAD
-                    DISABLED</span>
+                <span style="color: #ef4444; font-size: 0.8rem; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px;">PRINT/DOWNLOAD DISABLED</span>
                 <span style="cursor:pointer;" onclick="closeModal('pdfModal')">✕ Close</span>
             </div>
-            <div class="pdf-body">
-                <div class="pdf-watermark">student@neuramach.ai</div>
-                <div class="pdf-text">
-                    <h1 style="text-align: center;">Quantum Mechanics: Lecture 02</h1>
-                    <p style="text-align: center; color: #555; margin-bottom: 2rem;">Confidential Learning Material</p>
-                    <p><strong>1. The Wave Function (Ψ)</strong><br>The state of a quantum mechanical system is
-                        completely specified by a function Ψ(x,t) that depends on the coordinates of the particle and
-                        time.</p>
-                    <br>
-                    <p style="color: #888;">[End of Preview - Upgrade for full notes]</p>
-                </div>
+            <div class="pdf-body" style="flex:1; padding:0; position:relative; background:#1e293b;">
+                <iframe id="resourcePreviewFrame" style="width:100%; height:100%; min-height:70vh; border:none;"></iframe>
+                <div id="resourceWatermark" style="position:absolute; bottom:8px; right:8px; font-size:0.75rem; color:rgba(255,255,255,0.4); pointer-events:none;"></div>
             </div>
         </div>
     </div>
@@ -1204,8 +1054,8 @@
         <div class="modal" style="text-align: center;">
             <span class="close-modal" onclick="closeModal('upgradeModal')">✕</span>
             <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-            <h2 style="margin-bottom: 0.5rem;">Unlock Elite Content</h2>
-            <button class="upgrade-btn" onclick="window.location.href='pricing.html'">View Plans</button>
+            <h2 style="margin-bottom: 0.5rem;">Locked content</h2>
+            <p style="color: var(--text-grey);">Enroll in this batch to access.</p>
         </div>
     </div>
 
@@ -1217,330 +1067,407 @@
         </div>
     </div>
 
-    <!-- MOCK DATA SCRIPTS -->
     <script src="js/data.js"></script>
     <script src="js/state.js"></script>
-
+    <script src="js/ai.js"></script>
     <script>
-        // --- INITIALIZATION ---
-        const user = State.getCurrentUser();
-
+        let user = State.getCurrentUser();
         if (!user) {
             window.location.href = 'login.html';
         } else {
-            // Update UI with User Info
-            document.getElementById('user-name').innerText = user.name;
-            document.getElementById('settingsName').value = user.name;
+            document.getElementById('user-name').innerText = user.name || 'Learner';
+            document.getElementById('settingsName').value = user.name || '';
+            const headerProfile = document.getElementById('headerProfile');
+            if (headerProfile) headerProfile.textContent = (user.name || 'U').trim().split(/\s+/).map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U';
 
-            // Check for new user (just for the welcome message)
             if (localStorage.getItem('neuraUserType') === 'new') {
                 document.getElementById('welcome-title').innerHTML = `Welcome, <span class="welcome-name">${user.name}</span> 🚀`;
-                document.getElementById('welcome-sub').innerText = "Your journey to excellence begins today.";
-                localStorage.removeItem('neuraUserType'); // Clear flag
+                document.getElementById('welcome-sub').innerText = "Start your learning journey today.";
+                localStorage.removeItem('neuraUserType');
+            } else {
+                document.getElementById('welcome-sub').innerText = "Continue learning where you left off.";
             }
 
-            // Render Views
-            renderMyBatches();
+            renderResumeCard();
+            renderTodo();
+            renderCalendar();
+            renderEnrolled();
             renderCatalog();
+            updateHomeStats();
         }
 
-        // --- RENDER FUNCTIONS ---
-        function createCourseCard(course, isLocked = false) {
-            const lockedOverlay = isLocked ? `<div class="locked-overlay">🔒 LOCKED</div>` : '';
-            return `
-            <div class="course-card" onclick="${isLocked ? "openModal('upgradeModal')" : `openCourseDetail('${course.id}')`}">
-                <div class="thumbnail">${course.thumbnail} ${lockedOverlay}</div>
+        function updateHomeStats() {
+            user = State.getCurrentUser();
+            const enrolled = State.getEnrolledCourses();
+            const el = document.getElementById('stat-courses');
+            if (el) el.textContent = enrolled.length;
+        }
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('collapsed');
+        }
+
+        function renderResumeCard() {
+            const data = State.getResumeCourse();
+            const card = document.getElementById('resume-card');
+            if (!card) return;
+            if (!data || !data.course) {
+                card.style.display = 'none';
+                return;
+            }
+            const c = data.course;
+            const pct = (State.getCurrentUser().progress || {})[c.id] || 0;
+            card.style.display = 'flex';
+            document.getElementById('resume-course-title').textContent = c.title;
+            const lesson = data.lessonId && c.lessons ? c.lessons.find(l => l.id === data.lessonId) : null;
+            document.getElementById('resume-lesson-info').textContent = lesson ? `Stopped at ${Math.floor((data.timestamp || 0) / 60)}:${String((data.timestamp || 0) % 60).padStart(2,'0')}` : 'Resume';
+            document.getElementById('resume-progress-pct').textContent = pct + '%';
+            document.getElementById('resume-progress-fill').style.width = pct + '%';
+            document.getElementById('resume-btn').onclick = () => {
+                openCourseDetail(c.id, true);
+                if (data.lessonId) {
+                    const les = c.lessons.find(l => l.id === data.lessonId);
+                    if (les) playVideo(les.videoUrl || '', les.title, les.id, data.timestamp || 0);
+                }
+            };
+        }
+
+        function renderTodo() {
+            const tasks = State.getTasks();
+            const list = document.getElementById('todo-list');
+            if (!list) return;
+            list.classList.toggle('has-tasks', tasks.length > 0);
+            list.innerHTML = tasks.map(t => `
+                <div class="lesson-item" style="margin-bottom:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input type="checkbox" onchange="toggleTodo('${t.id}')">
+                        <span>${t.title}</span>
+                        <span style="font-size:0.8rem; color:var(--text-grey)">${t.date}</span>
+                    </label>
+                </div>
+            `).join('') || '<p style="color:var(--text-grey)">No tasks yet.</p>';
+        }
+
+        function renderCalendar() {
+            const tasks = State.getTasks();
+            const el = document.getElementById('mini-calendar');
+            if (!el) return;
+            const byDate = {};
+            tasks.forEach(t => { byDate[t.date] = (byDate[t.date] || 0) + 1; });
+            const month = new Date();
+            const monthStr = month.toLocaleString('default', { month: 'long', year: 'numeric' });
+            let html = '<div style="font-weight:600; margin-bottom:10px;">' + monthStr + '</div><div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; font-size:0.75rem;">';
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            days.forEach(d => { html += '<span style="color:var(--text-grey)">' + d + '</span>'; });
+            const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+            const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+            for (let i = 0; i < firstDay; i++) html += '<span></span>';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = month.getFullYear() + '-' + String(month.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                const count = byDate[dateStr] || 0;
+                html += '<span style="padding:4px; border-radius:4px; ' + (count ? 'background:rgba(59,130,246,0.2)' : '') + '">' + d + (count ? ' (' + count + ')' : '') + '</span>';
+            }
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const dateInput = document.getElementById('todo-date');
+            const title = input && input.value.trim();
+            if (!title) return;
+            State.addTask(title, dateInput && dateInput.value);
+            input.value = '';
+            if (dateInput) dateInput.value = '';
+            renderTodo();
+            renderCalendar();
+        }
+
+        function toggleTodo(id) {
+            State.deleteTask(id);
+            renderTodo();
+            renderCalendar();
+        }
+
+        function createCourseCard(course, options) {
+            const isEnrolled = options && options.enrolled;
+            const open = isEnrolled ? `openCourseDetail('${course.id}', true)` : `openCourseDetail('${course.id}', false)`;
+            if (isEnrolled) {
+                return `<div class="course-card" onclick="${open}">
+                    <div class="thumbnail">${course.thumbnail}</div>
+                    <div class="card-body">
+                        <div class="tag">${(course.tags && course.tags[0]) || 'Course'}</div>
+                        <div class="card-title">${course.title}</div>
+                        <div class="card-meta"><span>${course.lessonsCount} Lessons</span><span>${course.rating || ''} ★</span></div>
+                    </div>
+                </div>`;
+            }
+            return `<div class="course-card">
+                <div class="thumbnail">${course.thumbnail}</div>
                 <div class="card-body">
-                    <div class="tag">${course.tags[0]}</div>
+                    <div class="tag">${(course.tags && course.tags[0]) || 'Course'}</div>
                     <div class="card-title">${course.title}</div>
-                    <div class="card-meta"><span>${course.lessonsCount} Lessons</span><span>${course.rating} ★</span></div>
+                    <div class="card-meta"><span>${course.instructor}</span></div>
+                    <button class="upgrade-btn" style="margin-top:10px; padding: 0.5rem;" onclick="enrollInCourse('${course.id}')">Enroll</button>
                 </div>
             </div>`;
         }
 
-        function renderMyBatches() {
-            const enrolled = State.getEnrolledCourses();
-            const container = document.getElementById('dashboard-course-list');
-            const batchesContainer = document.querySelector('#view-batches .course-grid');
-
+        function renderEnrolled() {
+            const user = State.getCurrentUser();
+            let enrolled = State.getEnrolledCourses();
+            if (user && user.email && typeof State.isBlocked === 'function')
+                enrolled = enrolled.filter(c => !State.isBlocked(c.id, user.email));
+            const container = document.getElementById('enrolled-course-list');
+            if (!container) return;
             if (enrolled.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-grey)">You haven't enrolled in any courses yet. Check the Catalog!</p>`;
-                batchesContainer.innerHTML = container.innerHTML;
+                container.innerHTML = '<p style="color:var(--text-grey)">You have not enrolled in any batches yet, or access has been restricted. Browse courses to enroll.</p>';
                 return;
             }
-
-            const html = enrolled.map(c => createCourseCard(c)).join('');
-            container.innerHTML = html;
-            batchesContainer.innerHTML = html;
+            container.innerHTML = enrolled.map(c => createCourseCard(c, { enrolled: true })).join('');
         }
 
         function renderCatalog() {
-            const query = document.getElementById('catalogSearch').value.toLowerCase();
+            const searchEl = document.getElementById('catalogSearch');
+            const query = (searchEl && searchEl.value || '').toLowerCase();
             const allCourses = State.getCourses();
             const container = document.getElementById('catalog-course-list');
-
+            if (!container) return;
             const filtered = allCourses.filter(c =>
-                c.title.toLowerCase().includes(query) ||
-                c.tags.some(t => t.toLowerCase().includes(query))
+                (c.title || '').toLowerCase().includes(query) ||
+                (c.tags || []).some(t => t.toLowerCase().includes(query)) ||
+                (c.instructor || '').toLowerCase().includes(query)
             );
-
-            const user = State.getCurrentUser();
-            const html = filtered.map(c => {
-                const isEnrolled = user.enrolledCourses.includes(c.id);
-                // If enrolled, show normal card. If not, show "Enroll" option or handle click differently? 
-                // For now, let's make non-enrolled click -> Enroll Modal
-                if (isEnrolled) return createCourseCard(c);
-
-                return `
-                <div class="course-card">
-                    <div class="thumbnail">${c.thumbnail}</div>
-                    <div class="card-body">
-                        <div class="tag">${c.tags[0]}</div>
-                        <div class="card-title">${c.title}</div>
-                        <div class="card-meta"><span>${c.instructor}</span></div>
-                        <button class="upgrade-btn" style="margin-top:10px; padding: 0.5rem;" onclick="enrollInCourse('${c.id}')">Enroll Now</button>
-                    </div>
-                </div>`;
-            }).join('');
-
+            user = State.getCurrentUser();
+            const enrolledIds = (user && user.enrolledCourses) || [];
+            const html = filtered.map(c => createCourseCard(c, { enrolled: enrolledIds.includes(c.id) })).join('');
             container.innerHTML = html;
         }
 
-        // --- ACTIONS ---
+        function openLesson(courseId, lessonId) {
+            const course = State.getCourse(courseId);
+            if (!course || !course.lessons) return;
+            const lesson = course.lessons.find(l => l.id === lessonId);
+            if (!lesson) return;
+            const startTime = State.getVideoProgress(courseId, lessonId);
+            playVideo(lesson.videoUrl || '', lesson.title, lessonId, startTime);
+        }
+
         function enrollInCourse(courseId) {
             if (State.enroll(courseId)) {
                 alert("Enrolled successfully!");
-                renderMyBatches();
-                renderCatalog(); // Re-render to update button state
-                // flag to stay on current view instead of switching
+                renderEnrolled();
+                renderCatalog();
+                renderResumeCard();
+                updateHomeStats();
             }
         }
 
-        function openCourseDetail(courseId) {
-            window.currentCourseId = courseId; // GLOBAL for tab switching
+        function openCourseDetail(courseId, fromEnrolled) {
+            window.currentCourseId = courseId;
+            window.batchViewMode = fromEnrolled ? 'enrolled' : 'browse';
             const course = State.getCourse(courseId);
             if (!course) return;
+            user = State.getCurrentUser();
+            const isEnrolled = (user.enrolledCourses || []).includes(courseId);
 
-            // Update UI with Course Details
-            const view = document.getElementById('view-course-detail');
-            view.querySelector('h1').innerText = course.title;
-            view.querySelector('.tag').innerText = `${course.tags[0]} • Batch 2026`;
-            view.querySelector('.instructor-info span').innerText = `${course.instructor} • ${course.lessonsCount} Lessons`;
-            view.querySelector('p').innerText = course.description;
+            document.getElementById('detail-tag').textContent = (course.tags && course.tags[0]) || 'Course';
+            document.getElementById('detail-title').textContent = course.title;
+            document.getElementById('detail-instructor').textContent = course.instructor + ' • ' + (course.lessonsCount || course.lessons.length) + ' Lessons';
+            const pct = (user.progress || {})[courseId] || 0;
+            document.getElementById('detail-progress').textContent = pct + '%';
+            document.getElementById('detail-level').textContent = State.getLevelForCourse(courseId);
+            document.getElementById('detail-streak').textContent = '🔥 ' + (user.streak || 0);
 
-            // Render Lessons
             const lessonList = document.getElementById('content-curriculum');
-            lessonList.innerHTML = course.lessons.map(l => `
-                <div class="lesson-item" style="${l.locked ? 'opacity:0.6; cursor:not-allowed' : ''}" onclick="${l.locked ? '' : `playVideo('${l.videoUrl || ''}', '${l.title}', '${l.id}')`}">
-                    <div class="lesson-meta">
-                        <div class="play-icon">${l.locked ? '🔒' : '▶'}</div>
-                        <div><div style="font-weight: 600;">${l.title}</div><div style="font-size: 0.8rem; color: var(--text-grey);">${l.duration} • ${l.locked ? 'Locked' : 'Available'}</div></div>
+            lessonList.innerHTML = '';
+            if (isEnrolled) {
+                (course.lessons || []).forEach(l => {
+                    const div = document.createElement('div');
+                    div.className = 'lesson-item';
+                    div.innerHTML = '<div class="lesson-meta"><div class="play-icon">▶</div><div><div style="font-weight: 600;">' + (l.title || '') + '</div><div style="font-size: 0.8rem; color: var(--text-grey);">' + (l.duration || '') + '</div></div></div><span style="font-size: 0.8rem; color: var(--primary-blue);">Watch</span>';
+                    div.onclick = () => openLesson(courseId, l.id);
+                    lessonList.appendChild(div);
+                });
+            } else {
+                lessonList.innerHTML = (course.lessons || []).map(l => `
+                    <div class="lesson-item" style="opacity:0.7;">
+                        <div class="lesson-meta"><div class="play-icon">🔒</div><div style="font-weight: 600;">${l.title}</div></div>
+                        <span style="font-size: 0.8rem; color: var(--text-grey);">Locked</span>
                     </div>
-                    ${!l.locked ? '<span style="font-size: 0.8rem; color: var(--primary-blue);">Watch</span>' : ''}
-                </div>
-            `).join('');
-
-            // RENDER ANNOUNCEMENTS (Notice Board)
-            const noticeContainer = document.getElementById('course-notices');
-            if (noticeContainer) {
-                if (course.announcements && course.announcements.length > 0) {
-                    noticeContainer.innerHTML = course.announcements.map(a => `
-                        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--accent-color);">
-                            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
-                            <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    noticeContainer.innerHTML = `<p style="color: #64748b; font-style: italic;">No recent announcements.</p>`;
-                }
+                `).join('');
+                lessonList.innerHTML += '<p style="margin-top:1rem;"><button class="upgrade-btn" onclick="enrollInCourse(\'' + courseId + '\'); switchView(\'course-detail\');">Enroll to unlock</button></p>';
             }
 
-            // Switch View
-            switchView('course-detail'); // Use the ID directly
+            const noticeContainer = document.getElementById('course-notices');
+            if (noticeContainer) {
+                const ann = course.announcements || [];
+                noticeContainer.innerHTML = ann.length ? ann.map(a => `
+                    <div class="announcement-card"><div class="announcement-date">${a.date}</div><div class="announcement-title">${a.text}</div></div>
+                `).join('') : '<p style="color: var(--text-grey);">No announcements yet.</p>';
+            }
+
+            const resList = document.getElementById('content-resources-list');
+            if (resList) {
+                const res = course.resources || [];
+                resList.innerHTML = '';
+                res.forEach(r => {
+                    const div = document.createElement('div');
+                    div.className = 'resource-item';
+                    div.setAttribute('data-url', r.url || '');
+                    div.setAttribute('data-title', r.title || 'Resource');
+                    div.innerHTML = '<span>' + (r.title || 'Resource').replace(/</g, '&lt;') + '</span><span style="font-size:0.8rem; color:var(--text-grey)">' + (r.type || 'file') + '</span>';
+                    div.onclick = function() { openResource(this.getAttribute('data-url'), this.getAttribute('data-title')); };
+                    resList.appendChild(div);
+                });
+                if (res.length === 0) resList.innerHTML = '<p style="color:var(--text-grey)">No extra resources.</p>';
+            }
+            const aiRes = document.getElementById('content-ai-resources');
+            if (aiRes) {
+                const all = [];
+                (course.lessons || []).forEach(l => {
+                    const arr = State.getAIResources(courseId, l.id);
+                    arr.forEach(a => all.push({ lesson: l.title, ...a }));
+                });
+                aiRes.innerHTML = all.length ? all.map(a => `<div class="note-card"><div class="note-date">${a.date} • ${a.type}</div><div>${a.lesson}</div><p class="note-preview">${(a.content || '').slice(0, 120)}...</p></div>`).join('') : '<p style="color:var(--text-grey)">No NeuraAI resources yet. Use AI Transcription, Quiz, or Smart Notes in the video player.</p>';
+            }
+
+            document.getElementById('content-about-body').innerHTML = '<p>' + (course.description || 'No description.') + '</p><p style="margin-top:1rem;">What to expect: step-by-step videos, quizzes, and resources.</p>';
+            document.getElementById('content-analytics-list').innerHTML = '<p style="color:var(--text-grey)">Quiz analytics will appear here after you complete lessons.</p>';
+
+            switchView('course-detail');
         }
 
-        // --- NAVIGATION & UI ---
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            // Fix for inconsistent naming in previous steps if any
             const target = document.getElementById('view-' + viewName);
             if (target) target.classList.add('active');
-
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const nav = document.getElementById('nav-' + viewName);
+            const navId = viewName === 'course-detail' ? 'nav-enrolled' : 'nav-' + viewName;
+            const nav = document.getElementById(navId);
             if (nav) nav.classList.add('active');
         }
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-
-            document.getElementById('content-curriculum').style.display = 'none';
-            document.getElementById('content-resources').style.display = 'none';
-            document.getElementById('content-announcements').style.display = 'none';
-
-            const activeContent = document.getElementById('content-' + tabName);
-            activeContent.style.display = 'flex';
-
-            // Re-fetch announcements to ensure fresh data
-            if (tabName === 'announcements') {
-                // We need the course ID. It's not stored globally easily, but we can get it from the open view?
-                // Let's store currentCourseId globally when opening course
-                if (window.currentCourseId) {
-                    const course = State.getCourse(window.currentCourseId);
-                    const noticeContainer = document.getElementById('course-notices');
-                    if (course && noticeContainer) {
-                        if (course.announcements && course.announcements.length > 0) {
-                            noticeContainer.innerHTML = course.announcements.map(a => `
-                                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--accent-color);">
-                                    <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px;">${a.date}</div>
-                                    <div style="color: #e2e8f0; font-size: 0.9rem;">${a.text}</div>
-                                </div>
-                            `).join('');
-                        } else {
-                            noticeContainer.innerHTML = `<p style="color: #64748b; font-style: italic;">No recent announcements.</p>`;
-                        }
-                    }
-                }
-            }
-        }
-
-        // MODALS & PLAYER LOGIC
-        let currentLessonId = null;
-
-        function playVideo(url, title, lessonId) {
-            currentLessonId = lessonId || 'l1';
-            const modal = document.getElementById('videoModal');
-
-            // Set Title
-            document.getElementById('playerLessonTitle').innerText = title;
-
-            const container = modal.querySelector('.video-container');
-            container.innerHTML = ''; // Clear previous content
-
-            if (url) {
-                if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                    // YouTube Embed
-                    // Ensure it's an embed URL
-                    let embedUrl = url;
-                    if (url.includes('watch?v=')) {
-                        embedUrl = url.replace('watch?v=', 'embed/');
-                    }
-                    container.innerHTML = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                } else if (url.toLowerCase().endsWith('.pdf')) {
-                    // PDF Viewer
-                    container.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>`;
-                } else if (url.endsWith('.mp4')) {
-                    // Direct MP4
-                    container.innerHTML = `<video controls autoplay style="width:100%; height:100%; outline:none;">
-                        <source src="${url}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>`;
-                } else {
-                    // Generic Iframe fallback
-                    container.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
-                }
-            } else {
-                container.innerHTML = `<div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#555; background: #0f172a;">
-                    <div style="font-size:3rem; margin-bottom:1rem; opacity: 0.5;">☁️</div>
-                    <div style="font-size: 1.2rem; font-weight: 500; color: white;">Content Pending Upload</div>
-                    <div style="font-size:0.9rem; margin-top:0.5rem; color: var(--text-grey);">The instructor has not uploaded this lesson yet.</div>
-                </div>`;
-            }
-
-            modal.classList.add('active');
-            renderSavedNotes();
-        }
-
-        function switchPlayerTab(tab) {
-            // Update Tab UI
-            document.querySelectorAll('.player-tab').forEach(el => el.classList.remove('active'));
-            const activeTab = document.getElementById('ptab-' + tab);
-            if (activeTab) activeTab.classList.add('active');
-
-            // Show/Hide Content
-            document.getElementById('player-notes').style.display = tab === 'notes' ? 'flex' : 'none';
-            document.getElementById('player-resources').style.display = tab === 'resources' ? 'block' : 'none';
-        }
-
-        // AUTO-SAVE NOTES LOGIC
-        const noteInput = document.getElementById('noteInput');
-        let noteTimeout;
-        if (noteInput) {
-            noteInput.addEventListener('input', () => {
-                clearTimeout(noteTimeout);
-                noteTimeout = setTimeout(() => {
-                    const text = noteInput.value.trim();
-                    if (text) {
-                        State.saveNote(currentLessonId, text);
-                        renderSavedNotes();
-                        noteInput.value = ''; // Clear after save for prototype flow
-                    }
-                }, 1000);
+            const tabEl = document.getElementById('tab-' + tabName);
+            if (tabEl) tabEl.classList.add('active');
+            ['curriculum', 'resources', 'analytics', 'announcements', 'about'].forEach(name => {
+                const el = document.getElementById('content-' + name);
+                if (el) el.style.display = name === tabName ? (name === 'analytics' || name === 'about' ? 'block' : 'flex') : 'none';
             });
         }
 
-        function renderSavedNotes() {
-            if (!currentLessonId) return;
-            const notes = State.getNotes(currentLessonId);
-            const list = document.getElementById('savedNotesList');
-            if (!list) return;
+        let currentLessonId = null;
+        let currentLessonTitle = '';
+        let currentLessonVideoUrl = '';
 
-            if (notes.length === 0) {
-                list.innerHTML = `<div style="color:var(--text-grey); text-align:center; margin-top:2rem; font-size:0.9rem;">
-                    No notes yet.<br>Start typing above to auto-save.
-                </div>`;
-                return;
+        function playVideo(url, title, lessonId, startTime) {
+            currentLessonId = lessonId || 'l1';
+            currentLessonTitle = title || '';
+            currentLessonVideoUrl = url || '';
+            const courseId = window.currentCourseId;
+            const modal = document.getElementById('videoModal');
+            const container = document.getElementById('videoContainerEl');
+            if (!container) return;
+            const titleEl = document.getElementById('playerLessonTitle');
+            if (titleEl) titleEl.textContent = title || 'Lesson';
+            const wm = document.getElementById('videoWatermark');
+            if (wm) wm.textContent = (State.getCurrentUser().email || 'user') + '';
+
+            const savedTime = startTime != null ? startTime : (courseId ? State.getVideoProgress(courseId, lessonId) : 0);
+
+            container.innerHTML = '';
+            if (url) {
+                let embedUrl = url;
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    if (url.includes('watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
+                    if (savedTime > 0) embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'start=' + Math.floor(savedTime);
+                    container.innerHTML = '<iframe src="' + embedUrl + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                } else if ((url || '').toLowerCase().endsWith('.pdf')) {
+                    container.innerHTML = '<iframe src="' + url + '" width="100%" height="100%" style="border:none;"></iframe>';
+                } else if ((url || '').endsWith('.mp4')) {
+                    container.innerHTML = '<video id="nativeVideoEl" controls autoplay style="width:100%; height:100%; outline:none;"><source src="' + url + '" type="video/mp4"></video>';
+                    const v = container.querySelector('video');
+                    if (v && savedTime > 0) { v.currentTime = savedTime; v.ontimeupdate = function() { if (courseId && lessonId) State.saveVideoProgress(courseId, lessonId, v.currentTime); }; }
+                } else {
+                    container.innerHTML = '<iframe src="' + url + '" allowfullscreen></iframe>';
+                }
+            } else {
+                container.innerHTML = '<div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#555; background: #0f172a;"><div style="font-size:3rem; margin-bottom:1rem; opacity: 0.5;">☁️</div><div style="font-size: 1.2rem; font-weight: 500; color: white;">Content Pending Upload</div><div style="font-size:0.9rem; margin-top:0.5rem; color: var(--text-grey);">The instructor has not uploaded this lesson yet.</div></div>';
             }
-
-            list.innerHTML = notes.slice().reverse().map(n => `
-                <div style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:8px; margin-bottom:0.5rem; font-size:0.9rem;">
-                    <div style="color:var(--text-grey); font-size:0.75rem; margin-bottom:5px; display:flex; justify-content:space-between;">
-                        <span>${new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        <span style="color:var(--primary-blue)">Note</span>
-                    </div>
-                    ${n.text}
-                </div>
-            `).join('');
+            if (courseId && lessonId) State.setLastViewed(courseId, lessonId, savedTime);
+            modal.classList.add('active');
         }
 
-        function markLessonComplete() {
-            if (currentLessonId) {
-                alert("Lesson marked as complete! Progress updated.");
-                // In a real app, call State.updateProgress here
-                closeModal('videoModal');
+        async function requestAITranscription(btn) {
+            const cid = window.currentCourseId; const lid = currentLessonId;
+            if (!cid) return;
+            if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+            try {
+                const transcript = await NeuraAI.generateTranscription(currentLessonTitle, currentLessonVideoUrl);
+                State.saveAIResource(cid, lid, 'Transcription', transcript);
+                if (btn) { btn.disabled = false; btn.textContent = '📝 AI Transcription'; }
+                alert('Transcription saved to NeuraAI Resources.');
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = '📝 AI Transcription'; }
+                alert('Transcription failed. Try again.');
+            }
+        }
+        async function requestAIQuiz(btn) {
+            const cid = window.currentCourseId; const lid = currentLessonId;
+            if (!cid) return;
+            if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+            try {
+                const transcript = await NeuraAI.generateTranscription(currentLessonTitle, currentLessonVideoUrl);
+                const quiz = await NeuraAI.generateQuiz(transcript);
+                State.saveAIResource(cid, lid, 'Quiz', typeof quiz === 'string' ? quiz : JSON.stringify(quiz));
+                if (btn) { btn.disabled = false; btn.textContent = '❓ AI Quiz'; }
+                alert('Quiz saved to NeuraAI Resources.');
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = '❓ AI Quiz'; }
+                alert('Quiz generation failed. Try again.');
+            }
+        }
+        async function requestAISmartNotes(btn) {
+            const cid = window.currentCourseId; const lid = currentLessonId;
+            if (!cid) return;
+            if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+            try {
+                const transcript = await NeuraAI.generateTranscription(currentLessonTitle, currentLessonVideoUrl);
+                const notes = await NeuraAI.generateSmartNotes(transcript);
+                State.saveAIResource(cid, lid, 'Smart Notes', notes);
+                if (btn) { btn.disabled = false; btn.textContent = '✨ AI Smart Notes'; }
+                alert('Smart notes saved to NeuraAI Resources.');
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = '✨ AI Smart Notes'; }
+                alert('Smart notes failed. Try again.');
             }
         }
 
-        function openPDF(title) {
-            document.getElementById('pdfTitle').innerText = title;
+        function openResource(url, title) {
+            document.getElementById('pdfTitle').textContent = title || 'Resource';
+            const wm = document.getElementById('resourceWatermark');
+            if (wm) wm.textContent = (State.getCurrentUser().email || '') + '';
+            const frame = document.getElementById('resourcePreviewFrame');
+            if (frame && url) frame.src = url; else if (frame) frame.src = 'about:blank';
             document.getElementById('pdfModal').classList.add('active');
+        }
+        function openPDF(title) {
+            openResource('', title);
         }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) {
             const modal = document.getElementById(id);
             modal.classList.remove('active');
-            // Stop video if closing video modal
             if (id === 'videoModal') {
-                modal.querySelector('.video-container').innerHTML = '';
+                const c = modal.querySelector('.video-container');
+                if (c) c.innerHTML = '';
             }
-        }
-        function toggleChat() { document.getElementById('chatWindow').classList.toggle('active'); }
-        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const body = document.getElementById('chatBody');
-            const text = input.value.trim();
-            if (text) {
-                const userMsg = document.createElement('div');
-                userMsg.className = 'msg user'; userMsg.innerText = text;
-                body.appendChild(userMsg);
-                input.value = ''; body.scrollTop = body.scrollHeight;
-                setTimeout(() => {
-                    const botMsg = document.createElement('div');
-                    botMsg.className = 'msg bot'; botMsg.innerText = "I'm a prototype bot! I can't answer that yet.";
-                    body.appendChild(botMsg); body.scrollTop = body.scrollHeight;
-                }, 1000);
+            if (id === 'pdfModal') {
+                const frame = document.getElementById('resourcePreviewFrame');
+                if (frame) frame.src = 'about:blank';
             }
         }
     </script>
