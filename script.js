@@ -6,7 +6,7 @@
 const _supabaseUrl = "https://hnvswmwfezkkzjhttxgs.supabase.co";
 const _supabaseAnonKey = 'sb_publishable_gZWrsNqGTxBeY1wBH59RTw_nasYsHLg';
 const supabase = supabase.createClient(_supabaseUrl, _supabaseAnonKey);
-
+console.log("Supabase Connection Status:",supabase);
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
 
@@ -38,3 +38,22 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     }, 1500); // 1.5 seconds delay
 });
 
+async function checkConnection() {
+    try {
+        // This is a simple call to the Supabase Auth API
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+            console.error("❌ Supabase connection error:", error.message);
+            return;
+        }
+
+        console.log("✅ Supabase connected successfully!");
+        console.log("Current Session Data:", data);
+    } catch (err) {
+        console.error("Internal Script Error:", err);
+    }
+}
+
+// Run the check
+checkConnection();
