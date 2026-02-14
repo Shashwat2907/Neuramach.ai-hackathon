@@ -1,3 +1,12 @@
+
+
+
+
+// Initialize the Supabase client
+const _supabaseUrl = "https://hnvswmwfezkkzjhttxgs.supabase.co";
+const _supabaseAnonKey = 'sb_publishable_gZWrsNqGTxBeY1wBH59RTw_nasYsHLg';
+const supabase = supabase.createClient(_supabaseUrl, _supabaseAnonKey);
+
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
 

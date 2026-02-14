@@ -2,11 +2,13 @@
 <html lang="en">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuraVault | Access Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+
         /* --- GLOBAL RESET --- */
         * {
             margin: 0;
@@ -25,6 +27,8 @@
             background-image: radial-gradient(circle at center, #1e293b 0%, #020617 70%);
             overflow: hidden;
         }
+
+       
 
         /* --- LOGIN CARD --- */
         .login-container {
@@ -264,6 +268,7 @@
         // 3. LOGIN LOGIC (THE FORK)
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
+
 
             const inputs = e.target.querySelectorAll('input');
             const email = inputs[0].value.trim();
