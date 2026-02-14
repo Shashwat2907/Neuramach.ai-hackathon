@@ -6,7 +6,7 @@
 const _supabaseUrl = "https://hnvswmwfezkkzjhttxgs.supabase.co";
 const _supabaseAnonKey = 'sb_publishable_gZWrsNqGTxBeY1wBH59RTw_nasYsHLg';
 const supabase = supabase.createClient(_supabaseUrl, _supabaseAnonKey);
-console.log("Supabase Connection Status:",supabase);
+console.log("Supabase is connected:",supabase);
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
 
